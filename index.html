@@ -18,7 +18,7 @@
                 <h3 class="masthead-brand">CookUni</h3>
                 <nav class="nav nav-masthead justify-content-center">
                     <a class="nav-link" href="#">Home</a>
-                    <a class="nav-link" href="#">Welcome, {{names}}!</a>
+                    <a class="nav-link" id="login-welcome" href="#">Welcome, {{name}}!</a>
                     <a class="nav-link" href="#">Share recipe</a>
                     <a class="nav-link" href="#">Logout</a>
                     <a class="nav-link" href="#">Login</a>
@@ -34,8 +34,9 @@
         </div>
 
         <main role="main" class="inner cover mt-5">
-            <h1 class="cover-heading">Coooooking University</h1>
-            <p class="lead">They say that food passes through the stomach, we say that food passes through CookUni...
+            <h1 class="cover-heading text-center">(Cook)ing (Uni)versity</h1>
+            <p class="lead text-center">Food is part art, part organic chemistry. Food is nutrition and love. Food can harm. Food can heal. Food is universal ... We all love flavor, sometimes we all need basic.
+                <!-- They say that food passes through the stomach, we say that food passes through CookUni... -->
             </p>
         </main>
 
@@ -51,13 +52,11 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="our-team-main">
-
                             <div class="team-front">
                                 <img src="https://cdn.pixabay.com/photo/2017/10/09/19/29/eat-2834549__340.jpg" />
                                 <h3>Meal Name</h3>
                                 <p>Vegetables and legumes/beans CATEGORY</p>
                             </div>
-
                             <div class="team-back">
                                 <div class="back-side-info">
                                     <h4>Ingredients</h4>
@@ -69,11 +68,8 @@
                                     </ul>
                                     <a href="#">View the recepie</a>
                                 </div>
-
-                                <img class="foodImage"
-                                    src="https://t3.ftcdn.net/jpg/00/25/90/48/240_F_25904887_fhZJ692ukng3vQxzHldvuN981OiYVlJ1.jpg" />
+                                <img class="foodImage" src="https://t3.ftcdn.net/jpg/00/25/90/48/240_F_25904887_fhZJ692ukng3vQxzHldvuN981OiYVlJ1.jpg" />
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -363,9 +359,6 @@
 <script src="./node_modules/handlebars/dist/handlebars.js"></script>
 <script src="./node_modules/sammy/lib/sammy.js"></script>
 <script src="./node_modules/sammy/lib/plugins/sammy.handlebars.js"></script>
-
 <!--My Libraries-->
-<!--????-->
-<!--????-->
-<!--????-->
+<script src="./scripts/app.js"></script>
 </html>

@@ -39,7 +39,7 @@ body {
 }
 
 .cover-container {
-  max-width: 42em;
+  max-width: 45em;
 }
 
 /*
@@ -52,10 +52,12 @@ body {
 
 .masthead-brand {
   margin-bottom: 0;
+  /* margin-right: 0.125rem; */
 }
 
 .nav-masthead .nav-link {
   padding: .25rem 0;
+  /* margin: 1px; */
   font-weight: 700;
   color: rgba(255, 255, 255, 1);
   background-color: transparent;
@@ -167,7 +169,7 @@ h1 {
 }
 
 .our-team-main:hover .team-front {
-  bottom: -250px;
+  bottom: -172px;
   transition: all 0.5s ease;
 }
 
