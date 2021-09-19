@@ -123,7 +123,7 @@ h1 {
   border-radius: 10px;
   overflow: hidden;
   position: relative;
-  transition: 0.5s;
+  transition: all 1s ease;
   margin-bottom: 28px;
   color: black;
 }
@@ -147,7 +147,8 @@ h1 {
 
 .team-back {
   width: 100%;
-  height: auto;
+  /* height: auto; */
+  height: 250px;
   position: absolute;
   top: 0;
   left: 0;
@@ -165,11 +166,12 @@ h1 {
   background: rgba(255, 255, 255, 1);
   padding: 15px;
   bottom: 0px;
-  transition: all 0.5s ease;
+  transition: all 0.5s ease-in-out;
 }
 
 .our-team-main:hover .team-front {
-  bottom: -172px;
+  /* WHY can't I update this bottom number dynamically? */
+  bottom: -200px;
   transition: all 0.5s ease;
 }
 
