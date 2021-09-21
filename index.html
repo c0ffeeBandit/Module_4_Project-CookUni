@@ -206,12 +206,16 @@
 	let user = undefined;
 </script>
 
-<script> function render( html ){
+<script> // misc functions
+	function render( html ){
 		document.getElementById("container").innerHTML = html;
+	}
+	function getCurrent(){
+		return window.location.hash;
 	}
 </script>
 
-<script> function login (){
+<script> function login (){ // and loginClick()
 		let src = document.getElementById("loginTemplate").innerHTML;
 		let template = Handlebars.compile(src);
 		let context = {}; // {{ N/A }}
@@ -225,7 +229,6 @@
 		// console.log( "Login button clicked." );
 		let userName = document.getElementById("loginFormUserName").value;
 		let passWord = document.getElementById("loginFormPassword").value;
-		// GET
 		let url = "https://cookuniproject-default-rtdb.firebaseio.com/users.json";
 		let headers = {
     	method: 'GET', 
@@ -233,51 +236,30 @@
       	'Content-Type': 'application/json'
     	}
   	};
-		let oldUsers = {
-				"123456789": {
-						"firstName": "Bob",
-						"lastName": "The Builder",
-						"password": "yesWeCan",
-						"userName": "bobTheBuilder"
-				},
-				"-Mk8_XZFSfVJlljXhnRa": {
-						"firstName": "David",
-						"lastName": "Broadwell",
-						"password": "dbroadwell",
-						"userName": "dbroadwell"
-				}
-		}
 		let users = {};
 		fetch( url, headers )
 		.then(function(response){
-          console.log(response);
+          // console.log(response);
 					return response.json()
-				})
-        .then(function(data){
-					users = data;
-				});
-		// console.log( Object.entries(oldUsers) );
-		// let newUsers = Object.entries(oldUsers);
-		// for( let idx in newUsers ){
-		// 	console.log( idx, newUsers[idx], newUsers[idx][1].userName, newUsers[idx][1].password );
-		// 	if( newUsers[idx][1].userName == userName && newUsers[idx][1].password == passWord ){
-		// 		user = newUsers[idx][0];
-		// 	}
-		// }
-		console.log( Object.entries(users) );
-		let newUsers = Object.entries(users);
-		for( let idx in newUsers ){
-			console.log( idx, newUsers[idx], newUsers[idx][1].userName, newUsers[idx][1].password );
-			if( newUsers[idx][1].userName == userName && newUsers[idx][1].password == passWord ){
-				console.log( idx, "matches", newUsers[idx][0] );
-				user = newUsers[idx][0];
-				// clear form, run home
+		})
+		.then(function(data){
+			console.log( data );
+			users = data;
+			// console.log( Object.entries(users) );
+			let newUsers = Object.entries(users);
+			for( let idx in newUsers ){
+				// console.log( idx, newUsers[idx], newUsers[idx][1].userName, newUsers[idx][1].password );
+				if( newUsers[idx][1].userName == userName && newUsers[idx][1].password == passWord ){
+					// console.log( idx, "matches", newUsers[idx][0] );
+					user = newUsers[idx][0];
+					window.location.hash = "#home";
+				}
 			}
-		}
+		});
 	}
 </script>
 
-<script> function register (){
+<script> function register (){ // and registerClick()
 		let src = document.getElementById("registerTemplate").innerHTML;
 		let template = Handlebars.compile( src );
 		let context = {}; // {{ N/A }}
@@ -358,6 +340,8 @@
 
 <script> function home (){
 		console.log( "I'm home!" );
+		if ( !user ){ window.location.hash = "#login"; }
+
 		// load recepies
 		// if none, go fnf, 
 		// else render list of recepie cards
@@ -365,11 +349,7 @@
 </script>
 
 
-<script>
-	function getCurrent(){
-		return window.location.hash;
-	}
-	function listen(){
+<script> function listen(){
 		let current = getCurrent();
 		// console.log( window.location.hash );
 		if( current !== hashRoute ){ // user request page change || current !== ""
@@ -380,7 +360,7 @@
 				home();
 			}else if( hashRoute == "#register" ){
 				console.log( "Run register()" );
-				wondow.location.hash = "#register";
+				// window.location.hash = "#register";
 				register();
 			}else if( hashRoute.includes("recepie") ){
 				console.log( "Run recepieInfo()" );
@@ -392,7 +372,7 @@
 				recepieEdit( idStr );
 			}else if( !user || window.location.hash == "" ){
 				console.log( "Run login()" );
-				wondow.location.hash = "#login";
+				// window.location.hash = "#login";
 				login();
 			}
 		}
