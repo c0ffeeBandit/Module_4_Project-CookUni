@@ -11,28 +11,25 @@ logoutButton.addEventListener("click",logoutClick);
 registerButton.addEventListener("click",registerClick);
 function welcomeClick() {
 	// populate and show user profile screen?
-	console.log("welcome clicked");
+	console.log("nav welcome clicked");
 }
 function shareClick(){
   // unhide and focus share screen
-  console.log( "share clicked");
+  console.log( "nav share clicked");
 }
 function loginClick(){
   // unhide and focus login screen
-  console.log("login clicked");
+  console.log("nav login clicked");
 }
 function logoutClick(){
   // logout user, change welcome
-  console.log("logout clicked");
+  console.log("nav logout clicked");
 }
 function registerClick(){
   // unhide and focus register screen
-  console.log("register clicked");
+  console.log("nav register clicked");
 }
 
-// hide food not found
-let fnf = document.getElementById("foodNotFound");
-fnf.style.display = "none";
 
 // TODO: team-front needs to slide down the distance of the team-back element behind it
 // figure this out on the fly or it looks weird ... 
@@ -83,6 +80,3 @@ function fixDiv(div){
   // div.children[0].style.transition = "all 1s ease 1s";
   // console.log("fixDiv fired", div, div.children[0].style.top, newTop + "px");
 }
-
-// login (basic with user/pass) -> save token
-// to use token -> put in API auth header with key "Authorization"

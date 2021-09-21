@@ -40,6 +40,8 @@
             </p>
         </main>
 
+				<div id="container"></div>
+
         <footer class="mastfoot mt-5 text-center text-light">
             <div class="inner">
                 <p>Made with &hearts; by <a href="#/home">CookUni</a>.</p>
@@ -68,35 +70,35 @@
 </script>
 
 <script id="recepieCard" type="text/x-handlebars-template">
-    <h1 class="text-center">Our Recipes</h1>
-    <div id="sharedRecipes">
-	{{#each recipe}}
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="our-team-main" onmouseenter="moveDiv(this)" onmouseleave="fixDiv(this)">
-						<div class="team-front">
-							<img src="{{imgURL}}" />
-							<h3>{{mealName}}</h3>
-							<p>{{category}}</p>
-						</div>
-						<div class="team-back">
-							<div class="back-side-info">
-								<h4>Ingredients</h4>
-								<ul>
-								{{#each ingredient}}
-									<li>{{item}}</li>
-								{{/each}}
-								</ul>
-								<a href="#recepie/{{recepieID}}">View the recepie</a>
+  <h1 class="text-center">Our Recipes</h1>
+  <div id="sharedRecipes">
+		{{#each recipe}}
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="our-team-main" onmouseenter="moveDiv(this)" onmouseleave="fixDiv(this)">
+							<div class="team-front">
+								<img src="{{imgURL}}" />
+								<h3>{{mealName}}</h3>
+								<p>{{category}}</p>
 							</div>
-							<img class="foodImage" src="https://t3.ftcdn.net/jpg/00/25/90/48/240_F_25904887_fhZJ692ukng3vQxzHldvuN981OiYVlJ1.jpg" />
+							<div class="team-back">
+								<div class="back-side-info">
+									<h4>Ingredients</h4>
+									<ul>
+									{{#each ingredient}}
+										<li>{{item}}</li>
+									{{/each}}
+									</ul>
+									<a href="#recepie/{{recepieID}}">View the recepie</a>
+								</div>
+								<img class="foodImage" src="https://t3.ftcdn.net/jpg/00/25/90/48/240_F_25904887_fhZJ692ukng3vQxzHldvuN981OiYVlJ1.jpg" />
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	{{/each}}
+		{{/each}}
 	</div>
 </script>
 
@@ -105,29 +107,25 @@
 		<div class="col-md-12">
 			<div class="recepieInfo">
 				<div class="detailsFoodImage">
-					<img src="https://t3.ftcdn.net/jpg/00/25/90/48/240_F_25904887_fhZJ692ukng3vQxzHldvuN981OiYVlJ1.jpg"
-						alt="">
+					<img src="{{imgURL}}" alt="">
 				</div>
-
 				<div class="infoPack">
-					<h3 class="my-3">Meal Name</h3>
-					<p class="prep-method">Method of preparation...</p>
-					<p class="description">Description ...</p>
+					<h3 class="my-3">{{mealName}}</h3>
+					<p class="prep-method">{{prepMethod}}</p>
+					<p class="description">{{description}}</p>
 				</div>
 				<div class="actions">
-					<a class="btn btn-danger" href="#">Archive</a>
-					<a class="btn btn-info" href="#">Edit</a>
-					<a class="btn btn-success" href="#"> 900 likes</a>
+					<a class="btn btn-danger" href="#archive/{{recepieID}}">Archive</a>
+					<a class="btn btn-info" href="#edit/{{recepieID}}">Edit</a>
+					<a class="btn btn-success" href="#like/{{recepieID}}">{{numLikes}}</a>
 				</div>
 			</div>
-
 			<div class="detailsIngredients">
 				<h3 class="my-3 ingredient">Ingredients</h3>
 				<ul>
-					<li>First ingredient</li>
-					<li>Second ingredient</li>
-					<li>Third ingredient</li>
-					<li>...</li>
+					{{#each ingredient}}
+					<li>{{item}}</li>
+					{{/each}}
 				</ul>
 			</div>
 		</div>
@@ -162,11 +160,10 @@
 			<option>Lean meats and poultry, fish and alternatives</option>
 		</select>
 		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit">Edit it</button>
-	
 	</form>
 </script>
 
-<script id="register" type="text/x-handlebars-template">
+<script id="registerTemplate" type="text/x-handlebars-template">
 	<form class="text-center p-5 form-layout" action="#" method="POST">
 		<p class="h4 mb-4">Register</p>
 		<div class="form-row mb-4">
@@ -175,7 +172,6 @@
 					placeholder="First name">
 			</div>
 			<div class="col">
-
 				<input type="text" id="defaultRegisterFormLastName" class="form-control" name="lastName"
 					placeholder="Last name">
 			</div>
@@ -188,42 +184,220 @@
 		<hr>
 		<input type="password" id="defaultRegisterRepeatPassword" class="form-control" name="repeatPassword"
 			placeholder="Repeat Password">
-		<button class="btn btn-danger my-4 btn-block w-25 m-auto" type="submit">Register</button>
-
+		<button class="btn btn-danger my-4 btn-block w-25 m-auto" type="submit" id="registerButton">Register</button>
 	</form>
 </script>
 
-<script id="login" type="text/x-handlebars-template">
+<script id="loginTemplate" type="text/x-handlebars-template">
 	<form class="text-center p-5 form-layout" action="#" method="POST">
-
 		<p class="h4 mb-4">Sign in</p>
-
-		<input type="text" id="defaultRegisterFormUsername" name="username" class="form-control mb-4"
+		<input type="text" id="loginFormUserName" name="username" class="form-control mb-4"
 			placeholder="Username">
-
-		<input type="password" id="defaultRegisterFormPassword" name="password" class="form-control"
+		<input type="password" id="loginFormPassword" name="password" class="form-control"
 			placeholder="Password">
 		<hr>
-
-		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit">Sign in</button>
-
+		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit" id="loginButton">Sign in</button>
 	</form>
+	<p>Not already a CookUni user? <a href="#register">Register here</a>.</p>
 </script>
 
-<script>
-    let hashRoute = undefined;
-    function getCurrent(){
-      return window.location.hash;
-    }
-    function listen(){
-      let current = getCurrent();
-      if( current !== hashRoute ){
-        console.log( window.location.hash );
-        hashRoute = current;
-      }
-      setTimeout( listen, 200 );
-    }
-    listen();
-  </script>
+<script> // data(s)
+	let hashRoute = undefined;
+	let user = undefined;
+</script>
 
+<script> function render( html ){
+		document.getElementById("container").innerHTML = html;
+	}
+</script>
+
+<script> function login (){
+		let src = document.getElementById("loginTemplate").innerHTML;
+		let template = Handlebars.compile(src);
+		let context = {}; // {{ N/A }}
+		let html = template(context);
+		// console.log( "login says =>", src, "->", html );
+		render(html);
+		let loginButton = document.getElementById("loginButton");
+		loginButton.addEventListener( "click", (e) => { e.preventDefault(); loginClick(); } );
+	}
+	function loginClick (){
+		// console.log( "Login button clicked." );
+		let userName = document.getElementById("loginFormUserName").value;
+		let passWord = document.getElementById("loginFormPassword").value;
+		// GET
+		let url = "https://cookuniproject-default-rtdb.firebaseio.com/users.json";
+		let headers = {
+    	method: 'GET', 
+    	headers: {
+      	'Content-Type': 'application/json'
+    	}
+  	};
+		let oldUsers = {
+				"123456789": {
+						"firstName": "Bob",
+						"lastName": "The Builder",
+						"password": "yesWeCan",
+						"userName": "bobTheBuilder"
+				},
+				"-Mk8_XZFSfVJlljXhnRa": {
+						"firstName": "David",
+						"lastName": "Broadwell",
+						"password": "dbroadwell",
+						"userName": "dbroadwell"
+				}
+		}
+		let users = {};
+		fetch( url, headers )
+		.then(function(response){
+          console.log(response);
+					return response.json()
+				})
+        .then(function(data){
+					users = data;
+				});
+		// console.log( Object.entries(oldUsers) );
+		// let newUsers = Object.entries(oldUsers);
+		// for( let idx in newUsers ){
+		// 	console.log( idx, newUsers[idx], newUsers[idx][1].userName, newUsers[idx][1].password );
+		// 	if( newUsers[idx][1].userName == userName && newUsers[idx][1].password == passWord ){
+		// 		user = newUsers[idx][0];
+		// 	}
+		// }
+		console.log( Object.entries(users) );
+		let newUsers = Object.entries(users);
+		for( let idx in newUsers ){
+			console.log( idx, newUsers[idx], newUsers[idx][1].userName, newUsers[idx][1].password );
+			if( newUsers[idx][1].userName == userName && newUsers[idx][1].password == passWord ){
+				console.log( idx, "matches", newUsers[idx][0] );
+				user = newUsers[idx][0];
+				// clear form, run home
+			}
+		}
+	}
+</script>
+
+<script> function register (){
+		let src = document.getElementById("registerTemplate").innerHTML;
+		let template = Handlebars.compile( src );
+		let context = {}; // {{ N/A }}
+		let html = template(context);
+		render(html);		
+		let registerButton = document.getElementById("registerButton");
+		registerButton.addEventListener( "click", (e) => { 
+												e.preventDefault();
+												registerClick();
+											});
+	}
+	async function registerClick(){
+		console.log( "Register button clicked." );
+		let firstName = document.getElementById("defaultRegisterFormFirstName").value;
+		let lastName = document.getElementById("defaultRegisterFormLastName").value;
+		let userName = document.getElementById("defaultRegisterFormUsername").value;
+		let firstPass = document.getElementById("defaultRegisterFormPassword").value;
+		let secondPass = document.getElementById("defaultRegisterRepeatPassword").value;
+		// check parts for required entries ( TODO )
+		// console.log( firstName, lastName, userName, firstPass );
+		if( firstPass && firstPass == secondPass ){
+			if( firstName && lastName && userName ){
+				// build object to send with make user post request
+				body = {
+					userName,
+					password: firstPass,
+					firstName,
+					lastName
+				};
+			}
+		}
+		// let body = {
+		// 	userName,
+		// 	password: firstPass,
+		// 	firstName,
+		// 	lastName
+		// };
+		let url = "https://cookuniproject-default-rtdb.firebaseio.com/users.json";
+		let headers = {
+    	method: 'POST', 
+    	headers: {
+      	'Content-Type': 'application/json'
+    	},
+    	body: JSON.stringify(body)
+  	};
+		console.log( JSON.stringify(body) );
+		fetch( url, headers )
+		.then(function(response){
+          console.log(response);
+					return response.json(); }
+		).then(function(data){
+					console.log(data);
+					user = data.name;
+					return data; }
+		);
+		console.log( "after fetch" );
+		console.log( user );
+		// user = await response;
+		// console.log(response);
+		// console.log( url, headers, body );
+	}
+</script>
+
+<script> function recepieEdit ( idStr ){
+		// get ID from hashRoute
+		let src = document.getElementById("recepieEdit").innerHTML;
+		let template = Handlebars.compile(src);
+		let context = {}; // {{ N/A }}
+		let html = template(context);
+		render(html);		
+	}
+</script>
+
+<script> function recepieInfo ( hashRoute ){
+		
+	}
+</script>
+
+<script> function home (){
+		console.log( "I'm home!" );
+		// load recepies
+		// if none, go fnf, 
+		// else render list of recepie cards
+	}
+</script>
+
+
+<script>
+	function getCurrent(){
+		return window.location.hash;
+	}
+	function listen(){
+		let current = getCurrent();
+		// console.log( window.location.hash );
+		if( current !== hashRoute ){ // user request page change || current !== ""
+			// console.log( window.location.hash );
+			hashRoute = current;
+			if( hashRoute == "#home" ){ // of a user
+				console.log( "Run home()" );
+				home();
+			}else if( hashRoute == "#register" ){
+				console.log( "Run register()" );
+				wondow.location.hash = "#register";
+				register();
+			}else if( hashRoute.includes("recepie") ){
+				console.log( "Run recepieInfo()" );
+				let [ i, idStr ] = hashRoute.split("/");
+				recepieInfo( idStr );
+			}else if( hashRoute.includes("edit") ){
+				console.log( "Run recepieEdit()" );
+				let [ i, idStr ] = hashRoute.split("/");
+				recepieEdit( idStr );
+			}else if( !user || window.location.hash == "" ){
+				console.log( "Run login()" );
+				wondow.location.hash = "#login";
+				login();
+			}
+		}
+		setTimeout( listen, 200 );
+	}
+	listen();
+</script>
 </html>
