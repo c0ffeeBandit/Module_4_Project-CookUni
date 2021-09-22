@@ -147,8 +147,8 @@ h1 {
 
 .team-back {
   width: 100%;
-  /* height: auto; */
-  height: 250px;
+  height: auto;
+  /* height: 250px; */
   position: absolute;
   top: 0;
   left: 0;
@@ -171,7 +171,7 @@ h1 {
 
 .our-team-main:hover .team-front {
   /* WHY can't I update this bottom number dynamically? */
-  bottom: -200px;
+  bottom: -15.5rem;
   transition: all 0.5s ease;
 }
 
