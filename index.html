@@ -13,19 +13,14 @@
 <body>
     <div id="rooter" class="cover-container w-100 d-flex h-100 p-3 mx-auto flex-column">
 
-        <header class="masthead mb-auto">
+				<header class="masthead mb-auto">
             <div class="inner">
                 <h3 class="masthead-brand">CookUni</h3>
-                <nav class="nav nav-masthead justify-content-center">
-                    <a class="nav-link" href="#home">Home</a>
-                    <a class="nav-link" id="login-welcome" href="#">Welcome, {{name}}!</a>
-                    <a class="nav-link" id="share" href="#">Share recipe</a>
-                    <a class="nav-link" id="logout" href="#">Logout</a>
-                    <a class="nav-link" id="login" href="#">Login</a>
-                    <a class="nav-link" id="register" href="#">Register</a>
+                <nav id="nav" class="nav nav-masthead justify-content-center">
                 </nav>
             </div>
         </header>
+        
 
         <div id="notifications">
             <div id="successBox" class="alert alert-success" role="alert">{Success Message...}</div>
@@ -35,8 +30,8 @@
 
         <main role="main" class="inner cover mt-5">
             <h1 class="cover-heading text-center">(Cook)ing (Uni)versity</h1>
-            <p class="lead text-center">Food is part art, part organic chemistry. Food is nutrition and love. Food can harm. Food can heal. Food is universal ... We all love flavor, sometimes we all need basic.
-                <!-- They say that food passes through the stomach, we say that food passes through CookUni... -->
+            <p class="lead text-center">Food is part art, part organic chemistry.
+							Food is nutrition and love. Food can harm. Food can heal. Food is universal ... We all love flavor, sometimes we all need basic. They say that food passes through the stomach, we say that food passes through CookUni...
             </p>
         </main>
 
@@ -55,17 +50,16 @@
 <script src="./node_modules/jquery/dist/jquery.js"></script>
 <script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
 <!-- <script src="./node_modules/handlebars/dist/handlebars.js"></script> -->
-<!-- <script src="./node_modules/sammy/lib/sammy.js"></script> -->
-<!-- <script src="./node_modules/sammy/lib/plugins/sammy.handlebars.js"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 <!--My Libraries-->
-<!-- <script src="./scripts/css.js"></script> -->
 <script src="./scripts/app.js"></script>
 
-<script id="fnf" type="text/x-handlebars-template"> // food not found template
+<script id="fnf" type="text/x-handlebars-template"><!-- food not found template -->
 	<div id='foodNotFound'>
 		<img src="https://t4.ftcdn.net/jpg/00/62/17/31/240_F_62173114_ozantkVtkPgzL0fxssAkTqKX1FHPr0UW.jpg" />
 		<h3>Food not found...</h3>
+		<p>Seem to be missing recepies? <a href="#share">Share your favorites here</a>.</p>
+		<!-- Need help getting started? Read our getting started guide. -->
 	</div>
 </script>
 
@@ -92,7 +86,7 @@
 									</ul>
 									<a href="#recepie/{{recepieID}}">View the recepie</a>
 								</div>
-								<img class="foodImage" src="https://t3.ftcdn.net/jpg/00/25/90/48/240_F_25904887_fhZJ692ukng3vQxzHldvuN981OiYVlJ1.jpg" />
+								<img class="foodImage" src="{{foodImageURL}}" />
 							</div>
 						</div>
 					</div>
@@ -100,6 +94,20 @@
 			</div>
 		{{/each}}
 	</div>
+</script>
+
+<script id="navLoggedIn" type="text/x-handlebars-template">
+	<a class="nav-link" href="#home">Home</a>
+	<a class="nav-link" id="login-welcome" href="#home">Welcome, {{name}}!</a>
+	<a class="nav-link" id="share" href="#share">Share recipe</a>
+	<a class="nav-link" id="logout" href="#logout">Logout</a>
+</script>
+
+<script id="navLoggedOut" type="text/x-handlebars-template">
+	<a class="nav-link" href="#home">Home</a>
+	<a class="nav-link" id="login-welcome" href="#home">Welcome, Guest!</a>
+	<a class="nav-link" id="login" href="#login">Login</a>
+	<a class="nav-link" id="register" href="#register">Register</a>
 </script>
 
 <script id="recepieInfo" type="text/x-handlebars-template">
@@ -136,22 +144,22 @@
 	<form class="text-center p-5 form-layout" action="#" method="POST" id="edit-receipt-form">
 		<p class="h4 mb-4">Edit Recipe</p>
 	
-		<input type="text" id="defaultRecepieEditMeal" name="meal" class="form-control mb-4" placeholder="Meal"
-			value="">
+		<input type="text" id="editMeal" name="meal" class="form-control mb-4" placeholder="Meal Title"
+			value="" autofocus="autofocus" onfocus="this.select()">
 	
-		<input type="text" id="defaultRecepieEditIngredients" name="ingredients" class="form-control mb-4"
+		<input type="text" id="editIngredients" name="ingredients" class="form-control mb-4"
 			placeholder="Ingredients" value="">
 	
-		<textarea type="text" id="defaultRecepieEditMethodOfPreparation" name="prepMethod" class="form-control mb-4"
+		<textarea type="text" id="editPreparation" name="prepMethod" class="form-control mb-4"
 			placeholder="Method of preparation"></textarea>
 	
-		<textarea type="text" id="defaultRecepieEditDescription" name="description" class="form-control mb-4"
+		<textarea type="text" id="editDescription" name="description" class="form-control mb-4"
 			placeholder="Description"></textarea>
 	
-		<input type="text" id="defaultRecepieEditFoodImageURL" name="foodImageURL" class="form-control mb-4"
+		<input type="text" id="editFoodImageURL" name="foodImageURL" class="form-control mb-4"
 			placeholder="Food Image URL..." value="">
 	
-		<select name="category" select="">
+		<select name="category" id="editCategory" select="">
 			<option selected>Select category...</option>
 			<option>Vegetables and legumes/beans</option>
 			<option>Fruits</option>
@@ -159,7 +167,7 @@
 			<option>Milk, cheese, eggs and alternatives</option>
 			<option>Lean meats and poultry, fish and alternatives</option>
 		</select>
-		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit">Edit it</button>
+		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit" id="editButton">Edit it</button>
 	</form>
 </script>
 
@@ -168,22 +176,16 @@
 		<p class="h4 mb-4">Register</p>
 		<div class="form-row mb-4">
 			<div class="col">
-				<input type="text" id="defaultRegisterFormFirstName" class="form-control" name="firstName"
-					placeholder="First name">
+				<input type="text" id="defaultRegisterFormFirstName" class="form-control" name="firstName" placeholder="First name" autofocus="autofocus" onfocus="this.select()">
 			</div>
 			<div class="col">
-				<input type="text" id="defaultRegisterFormLastName" class="form-control" name="lastName"
-					placeholder="Last name">
+				<input type="text" id="defaultRegisterFormLastName" class="form-control" name="lastName" placeholder="Last name">
 			</div>
 		</div>
-
-		<input type="text" id="defaultRegisterFormUsername" class="form-control mb-4" name="username"
-			placeholder="Username">
-		<input type="password" id="defaultRegisterFormPassword" class="form-control" name="password"
-			placeholder="Password">
+		<input type="text" id="defaultRegisterFormUsername" class="form-control mb-4" name="username" placeholder="Username">
+		<input type="password" id="defaultRegisterFormPassword" class="form-control" name="password" placeholder="Password">
 		<hr>
-		<input type="password" id="defaultRegisterRepeatPassword" class="form-control" name="repeatPassword"
-			placeholder="Repeat Password">
+		<input type="password" id="defaultRegisterRepeatPassword" class="form-control" name="repeatPassword" placeholder="Repeat Password">
 		<button class="btn btn-danger my-4 btn-block w-25 m-auto" type="submit" id="registerButton">Register</button>
 	</form>
 </script>
@@ -191,28 +193,12 @@
 <script id="loginTemplate" type="text/x-handlebars-template">
 	<form class="text-center p-5 form-layout" action="#" method="POST">
 		<p class="h4 mb-4">Sign in</p>
-		<input type="text" id="loginFormUserName" name="username" class="form-control mb-4"
-			placeholder="Username">
-		<input type="password" id="loginFormPassword" name="password" class="form-control"
-			placeholder="Password">
+		<input type="text" id="loginFormUserName" name="username" class="form-control mb-4" placeholder="Username" autofocus="autofocus" onfocus="this.select()">
+		<input type="password" id="loginFormPassword" name="password" class="form-control" placeholder="Password">
 		<hr>
 		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit" id="loginButton">Sign in</button>
 	</form>
 	<p>Not already a CookUni user? <a href="#register">Register here</a>.</p>
-</script>
-
-<script> // data(s)
-	let hashRoute = undefined;
-	let user = undefined;
-</script>
-
-<script> // misc functions
-	function render( html ){
-		document.getElementById("container").innerHTML = html;
-	}
-	function getCurrent(){
-		return window.location.hash;
-	}
 </script>
 
 <script> function login (){ // and loginClick()
@@ -220,7 +206,6 @@
 		let template = Handlebars.compile(src);
 		let context = {}; // {{ N/A }}
 		let html = template(context);
-		// console.log( "login says =>", src, "->", html );
 		render(html);
 		let loginButton = document.getElementById("loginButton");
 		loginButton.addEventListener( "click", (e) => { e.preventDefault(); loginClick(); } );
@@ -239,8 +224,9 @@
 		let users = {};
 		fetch( url, headers )
 		.then(function(response){
-          // console.log(response);
-					return response.json()
+			// if( response.status == 200 ){
+				return response.json();
+			// }
 		})
 		.then(function(data){
 			console.log( data );
@@ -252,7 +238,9 @@
 				if( newUsers[idx][1].userName == userName && newUsers[idx][1].password == passWord ){
 					// console.log( idx, "matches", newUsers[idx][0] );
 					user = newUsers[idx][0];
+					userObj = newUsers[idx][1];
 					window.location.hash = "#home";
+					console.log( "logged in", userObj.firstName, user, JSON.stringify(userObj) );
 				}
 			}
 		});
@@ -271,33 +259,81 @@
 												registerClick();
 											});
 	}
-	async function registerClick(){
-		console.log( "Register button clicked." );
-		let firstName = document.getElementById("defaultRegisterFormFirstName").value;
-		let lastName = document.getElementById("defaultRegisterFormLastName").value;
-		let userName = document.getElementById("defaultRegisterFormUsername").value;
-		let firstPass = document.getElementById("defaultRegisterFormPassword").value;
-		let secondPass = document.getElementById("defaultRegisterRepeatPassword").value;
-		// check parts for required entries ( TODO )
-		// console.log( firstName, lastName, userName, firstPass );
-		if( firstPass && firstPass == secondPass ){
-			if( firstName && lastName && userName ){
-				// build object to send with make user post request
-				body = {
-					userName,
-					password: firstPass,
-					firstName,
-					lastName
-				};
-			}
-		}
-		// let body = {
-		// 	userName,
-		// 	password: firstPass,
-		// 	firstName,
-		// 	lastName
-		// };
+	function registerClick(){
+		// console.log( "Register button clicked." );
+		// TODO ( use the login code to find user, and if NOT, register )
+		let firstName = document.getElementById("defaultRegisterFormFirstName");
+		let lastName = document.getElementById("defaultRegisterFormLastName");
+		let userName = document.getElementById("defaultRegisterFormUsername");
+		let firstPass = document.getElementById("defaultRegisterFormPassword");
+		let secondPass = document.getElementById("defaultRegisterRepeatPassword");
 		let url = "https://cookuniproject-default-rtdb.firebaseio.com/users.json";
+		let userError = "This username is already taken. Please retry your request with a different username.";
+		let passError = "Passwords do not match. Please retry your request with matching passwords.";
+		let users = {};
+		let valid = true;
+		// check parts for required entries ( TODO )
+		if( !firstName.value ){
+			valid = false;
+			firstName.style.borderColor = "red";
+		}else{
+			firstName.style.borderColor = "green";
+		}
+		if( !lastName.value ){
+			valid = false;
+			lastName.style.borderColor = "red";
+		}else{
+			lastName.style.borderColor = "green";
+		}
+		if( !userName.value ){
+			valid = false;
+			userName.style.borderColor = "red";
+		}else{
+			userName.style.borderColor = "green";
+		}
+		if( !firstPass.value ){
+			valid = false;
+			firstPass.style.borderColor = "red";
+		}else{
+			firstPass.style.borderColor = "green";
+		}
+		if( !secondPass.value ){
+			valid = false;
+			secondPass.style.borderColor = "red";
+		}else{
+			secondPass.style.borderColor = "green";
+		}
+		if( firstPass.value != secondPass.value ){
+			alert( passError );
+			return;
+		}else{
+			fetch( url )
+			.then(function(response){
+				// if( response.status == 200 ){
+					return response.json();
+				// }
+			})
+			.then(function(data){
+				// console.log( data );
+				// console.log( Object.entries(data) );
+				let newUsers = Object.entries(data);
+				for( let idx in newUsers ){
+					// console.log( idx, newUsers[idx], newUsers[idx][1].userName, newUsers[idx][1].password );
+					if( newUsers[idx][1].userName == userName.value && newUsers[idx][1].password == firstPass.value ){
+						firstPass.value = "";
+						secondPass.value = "";
+						alert( userError );
+						return;
+					}
+				}
+			});
+		}
+		let body = {
+			userName: userName.value,
+			password: firstPass.value,
+			firstName: firstName.value,
+			lastName: lastName.value
+		};
 		let headers = {
     	method: 'POST', 
     	headers: {
@@ -315,39 +351,158 @@
 					user = data.name;
 					return data; }
 		);
-		console.log( "after fetch" );
-		console.log( user );
-		// user = await response;
-		// console.log(response);
-		// console.log( url, headers, body );
-	}
-</script>
-
-<script> function recepieEdit ( idStr ){
-		// get ID from hashRoute
-		let src = document.getElementById("recepieEdit").innerHTML;
-		let template = Handlebars.compile(src);
-		let context = {}; // {{ N/A }}
-		let html = template(context);
-		render(html);		
-	}
-</script>
-
-<script> function recepieInfo ( hashRoute ){
-		
 	}
 </script>
 
 <script> function home (){
 		console.log( "I'm home!" );
 		if ( !user ){ window.location.hash = "#login"; }
-
 		// load recepies
-		// if none, go fnf, 
-		// else render list of recepie cards
+		let url = "https://cookuniproject-default-rtdb.firebaseio.com/recepies.json";
+		fetch( url )
+		.then(function(response){
+			// console.log(response);
+			if( response.status > 250 ){
+				// TODO do food not found templates
+				let src = document.getElementById("fnf").innerHTML;
+				let template = Handlebars.compile(src);
+				let context = {}; // {{ N/A }}
+				let html = template(context);
+				render(html);
+				return;
+			}
+			return response.json(); }
+		).then(function(data){
+			console.log(data); // recepie ID
+			console.log(JSON.stringify(data));
+			render( JSON.stringify(data) );
+			// manipilate data into a form the template will like 
+			// process each id into a card template
+			return data; }
+		);
+		
+		// if none, go fnf, return;
+
+		// else render list of recepie cards into container
 	}
 </script>
 
+<script> function renderNav(){
+	if( !user && !userObj ){ // render logged out nav
+		// let src = document.getElementById("navLoggedOut").innerHTML;
+		// let template = Handlebars.compile(src);
+		// let context = {}; // {{ N/A }}
+		// let html = template(context);
+		document.getElementById("nav").innerHTML = document.getElementById("navLoggedOut").innerHTML;
+	}else{ // render logged in nav
+		console.log( userObj.firstName );
+		let src = document.getElementById("navLoggedIn").innerHTML;
+		let template = Handlebars.compile(src);
+		let context = { name: userObj.firstName };
+		let html = template(context);
+		document.getElementById("nav").innerHTML = html;
+	}
+}</script>
+
+<script> function recepieEdit ( idStr ){ // aka: share recepie AND function sendRecepie()
+		if ( !user ){ window.location.hash = "#login"; }
+		let src = document.getElementById("recepieEdit").innerHTML;
+		let template = Handlebars.compile(src);
+		let context = {}; // {{ N/A }}
+		let html = template(context);
+		render(html);
+		let editButton = document.getElementById("editButton");
+		editButton.addEventListener( "click", (e) => { e.preventDefault(); sendRecepie(); });
+	}
+	function sendRecepie(){
+		let meal = document.getElementById("editMeal");
+		let ingredients = document.getElementById("editIngredients");
+		let preparation = document.getElementById("editPreparation");
+		let foodImgURL = document.getElementById("editFoodImageURL");
+		let description = document.getElementById("editDescription");
+		let category = document.getElementById("editCategory");
+		let catImgURL = getCatImgURL( category[category.selectedIndex].value ); // string
+		let valid = true;
+		// validate items, highlight bad in red and stay on page
+		// TODO validate better?!
+		if( !meal.value ){
+			valid = false;
+			meal.style.borderColor = "red";
+		}else{
+			meal.style.borderColor = "green";
+		}
+		if( !ingredients.value ){
+			valid = false;
+			ingredients.style.borderColor = "red";
+		}else{
+			ingredients.style.borderColor = "green";
+		}
+		if( !preparation.value ){
+			valid = false;
+			preparation.style.borderColor = "red";
+		}else{
+			preparation.style.borderColor = "green";
+		}
+		if( !foodImgURL.value ){
+			valid = false;
+			foodImgURL.style.borderColor = "red";
+		}else{
+			foodImgURL.style.borderColor = "green";
+		}
+		if( !description.value ){
+			valid = false;
+			description.style.borderColor = "red";
+		}else{
+			description.style.borderColor = "green";
+		}
+		if( idx == 0 ){
+			valid = false;
+			category.style.borderColor = "red";
+		}else{
+			category.style.borderColor = "green";
+		}
+		if( !valid ){
+			return;
+		}
+		// construct data item for recepie body
+		let body = {
+			meal: meal.value,
+      ingredients: ingredients.value,
+      prepMethod: preparation.value,
+			description: description.value,
+			foodImageURL: foodImgURL.value,
+			category: category[category.selectedIndex].value,
+			likesCounter: 0,
+			categoryImageURL: catImgURL,
+			creator: user
+    };
+		let url = "https://cookuniproject-default-rtdb.firebaseio.com/recepies.json";
+		let headers = {
+    	method: 'POST', 
+    	headers: {
+      	'Content-Type': 'application/json'
+    	},
+    	body: JSON.stringify(body)
+  	};
+		console.log( JSON.stringify(body) );
+		fetch( url, headers )
+		.then(function(response){
+			// console.log(response);
+			return response.json(); }
+		).then(function(data){
+			console.log(data.name); // recepie ID
+			// add data.name to recepie data as "recepieID" (post)
+			// user = data.name;
+			return data; }
+		);
+	}
+</script>
+
+<script> function recepieInfo ( idStr ){
+		if ( !user ){ window.location.hash = "#login"; }
+		let url = 'https://cookuniproject-default-rtdb.firebaseio.com/recepies/${idStr}.json';
+	}
+</script>
 
 <script> function listen(){
 		let current = getCurrent();
@@ -356,21 +511,25 @@
 			// console.log( window.location.hash );
 			hashRoute = current;
 			if( hashRoute == "#home" ){ // of a user
-				console.log( "Run home()" );
+				renderNav();
 				home();
 			}else if( hashRoute == "#register" ){
+				renderNav();
 				console.log( "Run register()" );
 				// window.location.hash = "#register";
 				register();
+			}else if( hashRoute == "#logout" ){
+				logout();
+				login();
 			}else if( hashRoute.includes("recepie") ){
 				console.log( "Run recepieInfo()" );
 				let [ i, idStr ] = hashRoute.split("/");
 				recepieInfo( idStr );
-			}else if( hashRoute.includes("edit") ){
+			}else if( hashRoute == "#edit" || hashRoute == "#share" ){
 				console.log( "Run recepieEdit()" );
-				let [ i, idStr ] = hashRoute.split("/");
-				recepieEdit( idStr );
+				recepieEdit();
 			}else if( !user || window.location.hash == "" ){
+				renderNav();
 				console.log( "Run login()" );
 				// window.location.hash = "#login";
 				login();
