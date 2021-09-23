@@ -177,24 +177,25 @@
 	<form class="text-center p-5 form-layout" action="#" method="POST" id="edit-receipt-form">
 		<p class="h4 mb-4">Edit Recipe</p>
 	
+		<label for="meal">Meal Name</label>
 		<input type="text" id="defaultRecepieEditMeal" name="meal" class="form-control mb-4" placeholder="Meal Title"
 			value="{{meal}}" autofocus="autofocus" onfocus="this.select()">
-	
+	  <label for="ingredients">Ingredients</label>
 		<input type="text" id="defaultRecepieEditIngredients" name="ingredients" class="form-control mb-4"
 			placeholder="Ingredients" value="{{ingredients}}">
-	
+		<label for="prepMethod">Method of Preparation</label>
 		<textarea type="text" id="defaultRecepieEditMethodOfPreparation" name="prepMethod" class="form-control mb-4"
 			placeholder="Method of preparation">{{prepMethod}}</textarea>
-	
+	  <label for="Description">Description</label>
 		<textarea type="text" id="defaultRecepieEditDescription" name="description" class="form-control mb-4"
 			placeholder="Description">{{description}}</textarea>
-	
+	  <label for="foodImageURL">Food Image URL</label>
 		<input type="text" id="defaultRecepieEditFoodImageURL" name="foodImageURL" class="form-control mb-4"
 			placeholder="Food Image URL..." value="{{foodImageURL}}">
 	
 		<input type="hidden" id="recepieID" name="recepieID" value="{{recepieID}}"> <!-- hidden needed for use to edit a recepie -->
 		<input type="hidden" id="likesCounter" name="likesCounter" value="{{likesCounter}}"> <!-- hidden needed for use to edit a recepie -->
-
+    <label for="category">Food Category</label>
 		<select name="category" id="editCategory" select="{{category}}"> <!-- added id -->
 			<option selected>Select category...</option>
 			<option>Vegetables and legumes/beans</option>

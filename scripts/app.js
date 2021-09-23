@@ -23,11 +23,11 @@ function listen() { // main loop!
       reset();
 		} else if (hashRoute.includes("recepie")) {
 			let [i, idStr] = hashRoute.split("/");
-      console.log("recepieInfo( idStr );");
+      console.log(`recepieInfo( ${idStr} );`);
 			recepieInfo( idStr );
 		} else if (hashRoute.includes("edit")) {
 			let [i, idStr] = hashRoute.split("/");
-      console.log("recepieEdit( idStr );");
+      console.log(`recepieEdit( ${idStr} );`);
 			recepieEdit( idStr );
     } else if ( hashRoute == "#share") {
       console.log( "recepieShare();");
@@ -85,6 +85,27 @@ function getCatImgURL( category ){ // could do this with an object later
       return "https://t3.ftcdn.net/jpg/01/18/84/52/240_F_118845283_n9uWnb81tg8cG7Rf9y3McWT1DT1ZKTDx.jpg";
   }
 }
+function getCatIdx( category ){
+  switch (category) {
+		case "Vegetables and legumes/beans":
+			return 1;
+		case "Fruits":
+			return 2;
+		case "Grain Food":
+			return 3;
+		case "Milk, cheese, eggs and alternatives":
+			return 4;
+		case "Lean meats and poultry, fish and alternatives":
+			return 5;
+	}
+}
+function logout() {
+	setSuccessBox("Logout successful.");
+	userObj = undefined;
+	user = undefined;
+	window.location.hash = "";
+}
+//====================================================================================================
 function login(){
 	let src = document.getElementById("loginTemplate").innerHTML;
 	let template = Handlebars.compile(src);
@@ -128,12 +149,7 @@ function loginClick(){
 			}
 		});
 }
-function logout(){
-	setSuccessBox("Logout successful.");
-	userObj = undefined;
-	user = undefined;
-	window.location.hash = "";
-}
+//====================================================================================================
 function register(){
 	// and registerClick()
 	let src = document.getElementById("registerTemplate").innerHTML;
@@ -259,6 +275,7 @@ function registerClick(){
 	window.location.hash = "#home";
   setInfoBox();
 }
+//====================================================================================================
 function home(){
 	if ( !validateUser() ){ return; }
 	let url = "https://cookuniproject-default-rtdb.firebaseio.com/recepies.json";
@@ -298,6 +315,7 @@ function home(){
   });
 	// TODO test fnf !
 }
+//====================================================================================================
 function recepieShare(){
   if ( !validateUser() ){ return; }
   let src = document.getElementById("recepieEdit").innerHTML;
@@ -414,8 +432,8 @@ function shareRecepieClick(){
       window.location.hash = "#home";
 			return data;
 		});
-
 }
+//====================================================================================================
 function recepieEdit( idStr ) {
 	if ( !validateUser() ){ return; }
   // console.log("Get recepie:", idStr, "and render in recepieEdit template");
@@ -423,7 +441,7 @@ function recepieEdit( idStr ) {
 	setInfoBox();
 	fetch(url)
   .then(function (response) {
-    if (response.status < 300) {
+    if ( response.status < 300 ) {
 			clearInfoBox();
 		}
     return response.json();
@@ -433,21 +451,23 @@ function recepieEdit( idStr ) {
     let src = document.getElementById("recepieEdit").innerHTML;
     let template = Handlebars.compile(src);
     data.recepieID = idStr;
+    // console.log( JSON.stringify(data.ingredients) );
+    data.ingredients = JSON.stringify(data.ingredients);
     let context = data;
     let html = template(context);
     render(html);
+    let editButton = document.getElementById("editButton");
+		editButton.addEventListener( "click", (e) => { e.preventDefault(); sendEditRecepie(); });
+    let category = document.getElementById("editCategory");
+    category.selectedIndex = getCatIdx( data.category );
     return data;
   });
-  let editButton = document.getElementById("editButton");
-	editButton.addEventListener("click", (e) => {
-		e.preventDefault();
-		sendEditRecepie();
-	});
 }
 function sendEditRecepie() {
 	if ( !validateUser() ){ return; }
 	let meal = document.getElementById("defaultRecepieEditMeal");
 	let ingredients = document.getElementById("defaultRecepieEditIngredients");
+  let ingredientArr = JSON.parse(ingredients.value);
 	let preparation = document.getElementById("defaultRecepieEditMethodOfPreparation");
 	let foodImgURL = document.getElementById("defaultRecepieEditFoodImageURL");
 	let description = document.getElementById("defaultRecepieEditDescription");
@@ -456,6 +476,9 @@ function sendEditRecepie() {
 	let category = document.getElementById("editCategory");
 	let catImgURL = getCatImgURL(category[category.selectedIndex].value); // hardcoded URL string
 	let valid = true;
+  // console.log( "Before", ingredients.value );
+  // ingredients.value = JSON.parse(ingredients.value);
+  console.log( "Debug", ingredientArr, Array.isArray( ingredientArr ) );
   let errorStr = "";
   if (!meal.value && meal.length < 4) {
     valid = false;
@@ -464,17 +487,13 @@ function sendEditRecepie() {
   } else {
     meal.style.borderColor = "green";
   }
-  if (
-    !ingredients.value &&
-    ingredients.length < 2 &&
-    Array.isArray(ingredients)
-  ) {
-    valid = false;
-    errorStr += "\n  Ingredients must be an array of at least 2 entries.";
-    ingredients.style.borderColor = "red";
-  } else {
-    ingredients.style.borderColor = "green";
-  }
+  if ( ingredientArr.length < 2 || !Array.isArray( ingredientArr ) ) {
+		valid = false;
+		errorStr += "\n  Ingredients must be an array of at least 2 entries.";
+		ingredients.style.borderColor = "red";
+	} else {
+		ingredients.style.borderColor = "green";
+	}
   if (!preparation.value && preparation.length < 10) {
     valid = false;
     errorStr += "\n  Preparation Method must be longer than 10 characters.";
@@ -509,12 +528,13 @@ function sendEditRecepie() {
   }
   if (!valid) {
     setErrorBox(`Please fix as follows and try again; ${errorStr}`);
+    console.log(`Please fix as follows and try again; ${errorStr}`);
     return;
   }
 	// construct data item for recepie body
 	let body = {
 		meal: meal.value,
-		ingredients: ingredients.value,
+		ingredients: ingredientArr,
 		prepMethod: preparation.value,
 		description: description.value,
 		foodImageURL: foodImgURL.value,
@@ -526,7 +546,7 @@ function sendEditRecepie() {
 	};
 	let url = `https://cookuniproject-default-rtdb.firebaseio.com/recepies/${recepieID}.json`;
 	let headers = {
-		method: "POST",
+		method: "PATCH",
 		headers: {
 			"Content-Type": "application/json",
 		},
@@ -544,17 +564,17 @@ function sendEditRecepie() {
 		})
 		.then(function (data) {
 			// console.log(data.name); // recepie ID
+      document.getElementById("defaultRecepieEditMeal").value = "";
+      document.getElementById("defaultRecepieEditIngredients").value = "";
+      document.getElementById("defaultRecepieEditMethodOfPreparation").value = "";
+      document.getElementById("defaultRecepieEditFoodImageURL").value = "";
+      document.getElementById("defaultRecepieEditDescription").value = "";
+      window.location.hash = "#home";
+      setInfoBox();
 			return data;
-		})
-  ;
-	document.getElementById("editMeal").value = "";
-	document.getElementById("editIngredients").value = "";
-	document.getElementById("editPreparation").value = "";
-	document.getElementById("editFoodImageURL").value = "";
-	document.getElementById("editDescription").value = "";
-  window.location.hash = "#home";
-	setInfoBox();
+		});
 }
+//====================================================================================================
 function recepieInfo( idStr ){ // load and render a specific recepie with idString
 	if ( !validateUser() ){ return; }
 	console.log("Get recepie:", idStr, "and render in recepieEdit template");
@@ -581,15 +601,18 @@ function recepieInfo( idStr ){ // load and render a specific recepie with idStri
     let html = template(context);
     console.log(html);
     render(html);
-    if( user == data.creator ){
-      let deleteLink = document.getElementById("deleteLink");
-      let editLink = document.getElementById("editLink");
-      deleteLink.addEventListener("click", deleteRecepie(`${idStr}`));
-      editLink.addEventListener("click", recepieEdit(`${idStr}`));
-    }else{
-      let likeLink = document.getElementById("likelink");
-      likeLink.addEventListener("click", likeRecepie(`${idStr}`));
-    }
+    // if( user == data.creator ){
+    //   console.log( "It is the creator loading the recepie.");
+    //   let deleteLink = document.getElementById("deleteLink");
+    //   let editLink = document.getElementById("editLink");
+    //   deleteLink.
+    //   // deleteLink.addEventListener("click", deleteRecepie(`${idStr}`));
+    //   // editLink.addEventListener("click", recepieEdit(`${idStr}`));
+    // }else{
+    //   console.log("It is NOT the creator loading the recepie.");
+    //   let likeLink = document.getElementById("likelink");
+    //   // likeLink.addEventListener("click", likeRecepie(`${idStr}`));
+    // }
     return data;
   });
 }
@@ -616,6 +639,7 @@ function deleteRecepie( idStr ){
 }
 function likeRecepie( idStr ){
 	if ( !validateUser() ){ return; }
+  console.log( "Like Link Clicked.");
 	let url = `https://cookuniproject-default-rtdb.firebaseio.com/recepies/${idStr}.json`;
 	let headers = {
 		method: "POST",
@@ -635,6 +659,7 @@ function likeRecepie( idStr ){
 	// TODO popup "You liked that recipe."
   // home();
 }
+//====================================================================================================
 function setSuccessBox( str ){
   successAlert.innerHTML = str;
   successAlert.style.display = "block";
