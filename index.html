@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.css" />
+		<!-- <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui/dist/css/coreui.min.css"> -->
     <link rel="stylesheet" href="./styles/styles.css" />
     <title>CookUni</title>
 </head>
@@ -22,9 +23,9 @@
         </header>
 
         <div id="notifications">
-            <div id="successBox" class="alert alert-success" role="alert">{Success Message...}</div>
-            <div id="loadingBox" class="alert alert-info" role="alert">Loading...</div>
-            <div id="errorBox" class="alert alert-danger" role="alert">{Error Message...}</div>
+            <div id="successBox" class="alert alert-success alert-dismissible" role="alert" onclick="clearSuccessBox();">{Success Message...}</div>
+            <div id="loadingBox" class="alert alert-info alert-dismissible" role="alert" onclick="clearInfoBox();">Loading...</div>
+            <div id="errorBox" class="alert alert-danger alert-dismissible" role="alert" onclick="clearErrorBox();">{Error Message...}</div>
         </div>
 
         <main role="main" class="inner cover mt-5">
@@ -49,6 +50,7 @@
 <script src="./node_modules/jquery/dist/jquery.js"></script>
 <script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
 <!-- <script src="./node_modules/handlebars/dist/handlebars.js"></script> -->
+<!-- <script src="https://unpkg.com/@coreui/coreui@3.4.0/dist/js/coreui.min.js"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 <!--My Libraries-->
 <script src="./scripts/app.js"></script>
@@ -69,7 +71,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-lg-12">
-						<div class="our-team-main" onmouseenter="moveDiv(this)" onmouseleave="fixDiv(this)">
+						<div class="our-team-main">
 							<div class="team-front">
 								<img src="{{categoryImageURL}}" />
 								<h3>{{meal}}</h3>
@@ -96,14 +98,19 @@
 </script>
 <script id="navLoggedIn" type="text/x-handlebars-template">
 	<a class="nav-link" href="#home">Home</a>
-	<a class="nav-link" id="login-welcome" href="#home">Welcome, {{name}}!</a>
+	<!-- <a class="nav-link" id="login-welcome" href="#home">Welcome, {{name}}!</a> 
 	<a class="nav-link" id="share" href="#share">Share recipe</a>
-	<a class="nav-link" id="logout" href="#logout">Logout</a>
+	<a class="nav-link" id="logout" href="#logout">Logout</a> -->
+	<a class="nav-link" href="#home">Welcome, {{name}}!</a> 
+	<a class="nav-link" href="#share">Share recipe</a>
+	<a class="nav-link" href="#logout">Logout</a>
 </script>
 <script id="navLoggedOut" type="text/x-handlebars-template">
 	<a class="nav-link" href="#home">Home</a>
-	<a class="nav-link" id="login" href="#login">Login</a>
-	<a class="nav-link" id="register" href="#register">Register</a>
+	<!-- <a class="nav-link" id="login" href="#login">Login</a>
+	<a class="nav-link" id="register" href="#register">Register</a> -->
+	<a class="nav-link" href="#login">Login</a>
+	<a class="nav-link" href="#register">Register</a>	
 </script>
 <script id="recepieInfo" type="text/x-handlebars-template">
 	<div class="row form-layout p-5">
@@ -119,10 +126,10 @@
 				</div>
 				<div class="actions">
 					{{#if author}}
-					<a class="btn btn-danger" href="#archive/{{recepieID}}" onclick="deleteRecepie({{recepieID}})">Archive</a> <!-- TODO make onclick function -->
-					<a class="btn btn-info" href="#edit/{{recepieID}}">Edit</a>  <!-- TODO make onclick function -->
+					<a class="btn btn-danger" href="#archive/{{recepieID}}" id="archiveLink">Archive</a> <!-- instructions did not say we could not ADD an id field -->
+					<a class="btn btn-info" href="#edit/{{recepieID}}" id="deleteLink">Edit</a>
 					{{else}}
-					<a class="btn btn-success" href="#like/{{recepieID}}" onclick="likeRecepie({{recepieID}})">{{likesCounter}} likes</a> <!-- TODO make onclick function -->
+					<a class="btn btn-success" href="#like/{{recepieID}}" id="likeLink">{{likesCounter}} likes</a>
 					{{/if}}
 				</div>
 			</div>
@@ -141,22 +148,21 @@
 	<form class="text-center p-5 form-layout" action="#" method="POST" id="edit-receipt-form">
 		<p class="h4 mb-4">Edit Recipe</p>
 	
-		<input type="text" id="editMeal" name="meal" class="form-control mb-4" placeholder="Meal Title"
-			value="" autofocus="autofocus" onfocus="this.select()">
+		<input type="text" id="defaultRecepieShareMeal" name="meal" class="form-control mb-4" placeholder="Meal">
+
+		<input type="text" id="defaultRecepieShareIngredients" name="ingredients" class="form-control mb-4"
+				placeholder="Ingredients">
+
+		<textarea type="text" id="defaultRecepieShareMethodOfPreparation" name="prepMethod"
+				class="form-control mb-4" placeholder="Method of preparation"></textarea>
+
+		<textarea type="text" id="defaultRecepieShareDescription" name="description" class="form-control mb-4"
+				placeholder="Description"></textarea>
+
+		<input type="text" id="defaultRecepieShareFoodImageURL" name="foodImageURL" class="form-control mb-4"
+				placeholder="Food Image URL...">
 	
-		<input type="text" id="editIngredients" name="ingredients" class="form-control mb-4"
-			placeholder="Ingredients" value="">
-	
-		<textarea type="text" id="editPreparation" name="prepMethod" class="form-control mb-4"
-			placeholder="Method of preparation"></textarea>
-	
-		<textarea type="text" id="editDescription" name="description" class="form-control mb-4"
-			placeholder="Description"></textarea>
-	
-		<input type="text" id="editFoodImageURL" name="foodImageURL" class="form-control mb-4"
-			placeholder="Food Image URL..." value="">
-	
-		<select name="category" id="editCategory" select="">
+		<select name="category" id="shareCategory" select=""> <!-- added id -->
 			<option selected>Select category...</option>
 			<option>Vegetables and legumes/beans</option>
 			<option>Fruits</option>
@@ -164,32 +170,32 @@
 			<option>Milk, cheese, eggs and alternatives</option>
 			<option>Lean meats and poultry, fish and alternatives</option>
 		</select>
-		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit" id="shareButton">Share it</button>
+		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit" id="shareButton">Share it</button> <!-- added id -->
 	</form>
 </script>
 <script id="recepieEdit" type="text/x-handlebars-template">
 	<form class="text-center p-5 form-layout" action="#" method="POST" id="edit-receipt-form">
 		<p class="h4 mb-4">Edit Recipe</p>
 	
-		<input type="text" id="editMeal" name="meal" class="form-control mb-4" placeholder="Meal Title"
+		<input type="text" id="defaultRecepieEditMeal" name="meal" class="form-control mb-4" placeholder="Meal Title"
 			value="{{meal}}" autofocus="autofocus" onfocus="this.select()">
 	
-		<input type="text" id="editIngredients" name="ingredients" class="form-control mb-4"
+		<input type="text" id="defaultRecepieEditIngredients" name="ingredients" class="form-control mb-4"
 			placeholder="Ingredients" value="{{ingredients}}">
 	
-		<textarea type="text" id="editPreparation" name="prepMethod" class="form-control mb-4"
+		<textarea type="text" id="defaultRecepieEditMethodOfPreparation" name="prepMethod" class="form-control mb-4"
 			placeholder="Method of preparation">{{prepMethod}}</textarea>
 	
-		<textarea type="text" id="editDescription" name="description" class="form-control mb-4"
+		<textarea type="text" id="defaultRecepieEditDescription" name="description" class="form-control mb-4"
 			placeholder="Description">{{description}}</textarea>
 	
-		<input type="text" id="editFoodImageURL" name="foodImageURL" class="form-control mb-4"
+		<input type="text" id="defaultRecepieEditFoodImageURL" name="foodImageURL" class="form-control mb-4"
 			placeholder="Food Image URL..." value="{{foodImageURL}}">
 	
-		<input type="hidden" id="recepieID" name="recepieID" value="{{recepieID}}">
-		<input type="hidden" id="likesCounter" name="likesCounter" value="{{likesCounter}}">
+		<input type="hidden" id="recepieID" name="recepieID" value="{{recepieID}}"> <!-- hidden needed for use to edit a recepie -->
+		<input type="hidden" id="likesCounter" name="likesCounter" value="{{likesCounter}}"> <!-- hidden needed for use to edit a recepie -->
 
-		<select name="category" id="editCategory" select="{{category}}">
+		<select name="category" id="editCategory" select="{{category}}"> <!-- added id -->
 			<option selected>Select category...</option>
 			<option>Vegetables and legumes/beans</option>
 			<option>Fruits</option>
@@ -197,7 +203,7 @@
 			<option>Milk, cheese, eggs and alternatives</option>
 			<option>Lean meats and poultry, fish and alternatives</option>
 		</select>
-		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit" id="editButton">Edit it</button>
+		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit" id="editButton">Edit it</button> <!-- added id -->
 	</form>
 </script>
 <script id="registerTemplate" type="text/x-handlebars-template">
@@ -221,13 +227,13 @@
 <script id="loginTemplate" type="text/x-handlebars-template">
 	<form class="text-center p-5 form-layout" action="#" method="POST">
 		<p class="h4 mb-4">Sign in</p>
-		<input type="text" id="loginFormUserName" name="username" class="form-control mb-4" placeholder="Username" autofocus="autofocus" onfocus="this.select()">
-		<input type="password" id="loginFormPassword" name="password" class="form-control" placeholder="Password">
+		<input type="text" id="defaultRegisterFormUsername" name="username" class="form-control mb-4" placeholder="Username" autofocus="autofocus" onfocus="this.select()">
+		<input type="password" id="defaultRegisterFormPassword" name="password" class="form-control" placeholder="Password">
 		<hr>
 		<button class="btn btn-danger w-25 m-auto my-4 btn-block" type="submit" id="loginButton">Sign in</button>
 	</form>
 	<p>Not already a CookUni user? <a href="#register">Register here</a>.</p>
 </script>
-
+<!-- Wake the code! -->
 <script>listen();// run main (only) loop call this, last!</script>
 </html>
