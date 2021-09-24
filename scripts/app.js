@@ -7,51 +7,53 @@ var infoAlert = document.getElementById("loadingBox");
 
 function listen() { // main loop!
 	let current = getCurrent();
+
 	if (current !== hashRoute) {
-		// this always trigger the first time, hashRout inits to undefined.
 		// console.log( window.location.hash );
 		hashRoute = current;
 		renderNav();
-		if (hashRoute == "#home") {
-			console.log("home();");
+    let [i, idStr] = hashRoute.split("/");
+		if ( hashRoute == "#home" ) {
+			// console.log( "home();" );
       home();
-		} else if (hashRoute == "#register") {
-      console.log("register();");
+		} else if ( hashRoute == "#register" ) {
+      // console.log("register();");
 			register();
-		} else if (hashRoute == "#logout") {
-      console.log("reset();");
-      reset();
-		} else if (hashRoute.includes("recepie")) {
-			let [i, idStr] = hashRoute.split("/");
-      console.log(`recepieInfo( ${idStr} );`);
+		} else if ( hashRoute == "#logout") {
+      // console.log("logout();\nrenderNav();\nlogin();");
+      logout();
+      login();
+		} else if ( hashRoute.includes("recepie") ){
+      // console.log(`recepieInfo( ${idStr} );`);
 			recepieInfo( idStr );
-		} else if (hashRoute.includes("edit")) {
-			let [i, idStr] = hashRoute.split("/");
-      console.log(`recepieEdit( ${idStr} );`);
+		} else if ( hashRoute.includes("edit") ){
+      // console.log(`recepieEdit( ${idStr} );`);
 			recepieEdit( idStr );
+		} else if ( hashRoute.includes("archive") ){
+      console.log(`deleteRecepie( ${idStr} );`);
+			deleteRecepie( idStr );
+		} else if ( hashRoute.includes("like") ){
+      console.log(`likeRecepie( ${idStr} );`);
+			likeRecepie( idStr );
     } else if ( hashRoute == "#share") {
-      console.log( "recepieShare();");
+      // console.log( "recepieShare();");
 			recepieShare();
-		} else if (!user || window.location.hash == "" || hashRoute == "#login" ){
-      console.log( "login();");
-			login();
-		}
+		} else if ( !user || !userObj || window.location.hash == "" || hashRoute == "#login" ){
+      // console.log( "login();");
+      login();
+		} else if( hashRoute == "#pancakes" || hsehRoute == "#makeFood "){
+      makeFood();
+    }
 	}
-	setTimeout( listen, 200 );
-}
-function reset(){
-	logout(); // kill data and route
-	renderNav(); // default the nav
-	login(); // login!
+	setTimeout( listen, 150 );
 }
 function validateUser(){
   if ( !user && !userObj ) {
-    console.log("Validate User Fail", user, JSON.stringify(userObj) );
-    reset();
-    return false;
-  }else{
-    return true;
-  }
+		console.log("Validate User Fail", user, JSON.stringify(userObj));
+		window.location.hash = "#logout";
+		return false;
+	}
+  return true;
 }
 function render(html){
   document.getElementById("container").innerHTML = html;
@@ -60,7 +62,7 @@ function renderNav(){
 	if( !user && !userObj ){ // render logged out nav
 		document.getElementById("nav").innerHTML = document.getElementById("navLoggedOut").innerHTML;
 	}else{ // render logged in nav
-		console.log( "renderNav for:", userObj.firstName, userObj.lastName, "With ID:", user );
+		// console.log( "renderNav for:", userObj.firstName, userObj.lastName, "With ID:", user );
 		let src = document.getElementById("navLoggedIn").innerHTML;
 		let template = Handlebars.compile( src );
 		let context = { name: `${userObj.firstName} ${userObj.lastName}` };
@@ -284,19 +286,20 @@ function home(){
     .then(function (response) {
       // console.log(response.status);
       clearInfoBox();
-      if (response.status > 200) {
-        let src = document.getElementById("fnf").innerHTML;
-        let template = Handlebars.compile(src);
-        let context = {}; // {{ N/A }}
-        let html = template(context);
-        render(html);
-        return;
-      }
       return response.json();
     })
     .then(function (data) {
       // console.log("RecepieID", data.name); // recepie ID
-      // render(JSON.stringify(data)); // just to see what came back on the page
+      console.log( JSON.stringify( data ) );
+      if( !data ){ // food not found!
+        let src = document.getElementById("fnf").innerHTML;
+				let template = Handlebars.compile(src);
+				let context = {}; // {{ N/A }}
+				let html = template(context);
+				render(html);
+				return;
+      }
+      render(JSON.stringify(data)); // just to see what came back on the page
       let finalData = [];
       let initData = Object.entries(data);
       for ( const entry of initData ){ // make it like handlebars expects
@@ -318,7 +321,7 @@ function home(){
 //====================================================================================================
 function recepieShare(){
   if ( !validateUser() ){ return; }
-  let src = document.getElementById("recepieEdit").innerHTML;
+  let src = document.getElementById("recepieShare").innerHTML;
   let template = Handlebars.compile(src);
   let context = {}; // {{ N/A }}
   let html = template(context);
@@ -577,7 +580,7 @@ function sendEditRecepie() {
 //====================================================================================================
 function recepieInfo( idStr ){ // load and render a specific recepie with idString
 	if ( !validateUser() ){ return; }
-	console.log("Get recepie:", idStr, "and render in recepieEdit template");
+	// console.log("Get recepie:", idStr, "and render in recepieEdit template");
 	let url = `https://cookuniproject-default-rtdb.firebaseio.com/recepies/${idStr}.json`;
   setInfoBox();
 	fetch(url)
@@ -588,7 +591,7 @@ function recepieInfo( idStr ){ // load and render a specific recepie with idStri
     return response.json();
   })
   .then(function (data) {
-    console.log("Recepie Info Data:", JSON.stringify(data)); // recepie ID
+    // console.log("Recepie Info Data:", JSON.stringify(data)); // recepie ID
     let src = document.getElementById("recepieInfo").innerHTML;
     let template = Handlebars.compile(src);
     data.recepieID = idStr;
@@ -599,33 +602,21 @@ function recepieInfo( idStr ){ // load and render a specific recepie with idStri
     }
     let context = data;
     let html = template(context);
-    console.log(html);
+    // console.log(html);
     render(html);
-    // if( user == data.creator ){
-    //   console.log( "It is the creator loading the recepie.");
-    //   let deleteLink = document.getElementById("deleteLink");
-    //   let editLink = document.getElementById("editLink");
-    //   deleteLink.
-    //   // deleteLink.addEventListener("click", deleteRecepie(`${idStr}`));
-    //   // editLink.addEventListener("click", recepieEdit(`${idStr}`));
-    // }else{
-    //   console.log("It is NOT the creator loading the recepie.");
-    //   let likeLink = document.getElementById("likelink");
-    //   // likeLink.addEventListener("click", likeRecepie(`${idStr}`));
-    // }
     return data;
   });
 }
 function deleteRecepie( idStr ){
 	if ( !validateUser() ){ return; }
   let url = `https://cookuniproject-default-rtdb.firebaseio.com/recepies/${idStr}.json`;
-  let body = {};
+  // let body = {};
   let headers = {
-    method: "POST",
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    // body: JSON.stringify(body),
   };
   setInfoBox("Sending...");
   fetch( url, headers )
@@ -633,31 +624,50 @@ function deleteRecepie( idStr ){
     if( response.status == 200 ){
 			clearInfoBox();
 			setSuccessBox("Your recipe was archived.");
-			home();
+			window.location.hash = "#home";
 		}
   });
 }
 function likeRecepie( idStr ){
 	if ( !validateUser() ){ return; }
-  console.log( "Like Link Clicked.");
+  console.log( `Like Link Clicked for ${idStr}.`);
+  let body = {};
 	let url = `https://cookuniproject-default-rtdb.firebaseio.com/recepies/${idStr}.json`;
-	let headers = {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(body),
-	};
-	// let data = {};
-	// TODO "Getting data."
-	// fetch get recepie
-	// TODO clear "Getting data."
-	// likesCounter++
-	// TODO "Sending data."
-	// fetch post recepie
-	// TODO clear "Sending Data."
-	// TODO popup "You liked that recipe."
-  // home();
+	setInfoBox();
+  fetch(url)
+    .then(function (response) {
+			// console.log( response.status );
+			if (response.status == 200) {
+				clearInfoBox();
+			}
+			return response.json();
+		})
+    .then(function (data) {
+      // console.log( JSON.stringify( data ));
+      body.likesCounter = Number(data.likesCounter) + 1; // try just the one word of data
+      // console.log( "body.likesCounter", body.likesCounter );
+      setInfoBox("Sending...");
+      let headers = {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      };
+      fetch(url,headers) // PATCH!
+        .then(function (response) {
+          // console.log( response.status );
+          if (response.status == 200) {
+            clearInfoBox();
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          console.log( JSON.stringify( data ) );
+          setSuccessBox("You liked that recipe.");
+          window.location.hash = "#home";
+        });
+    });
 }
 //====================================================================================================
 function setSuccessBox( str ){
@@ -686,4 +696,115 @@ function setErrorBox( str ){
 }
 function clearErrorBox(){
   errorAlert.style.display = "none";
+}
+function makeFood(){ // Dalek says: REPOPULATE! (with dbroadwell's ID)
+  let body1 = {
+    category: "Grain Food",
+    categoryImageURL: "https://cdn.pixabay.com/photo/2014/12/11/02/55/corn-syrup-563796__340.jpg",
+    creator: "-Mk8_XZFSfVJlljXhnRa",
+    description: "This is a great recipe that I found in my Grandma's recipe book. Judging from the weathered look of this recipe card, this was a family favorite.",
+    foodImageURL: "https://images.media-allrecipes.com/userphotos/720x405/4948036.jpg",
+    ingredients: [
+      "1 1/12 cups all purpose flour",
+      "3 1/2 teaspoons baking powder",
+      "1 teaspoon salt",
+      "1 tablespoon white sugar",
+      "1 1/4 cups milk",
+      "1 egg",
+      "3 tablespoons butter, melted",
+    ],
+    likesCounter: 3,
+    meal: "Good Old Fashioned Pancakes",
+    prepMethod: "In a large bowl, sift together the flour, baking powder, salt and sugar. Make a well in the center and pour in the milk, egg and melted butter; mix until smooth. Heat a lightly oiled griddle or frying pan over medium high heat. Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake. Brown on both sides and serve hot.",
+  };
+  let url = "https://cookuniproject-default-rtdb.firebaseio.com/recepies.json";
+  let headers1 = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body1),
+  };
+  fetch(url, headers1)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log("body1 call result", data.name); // recepie ID
+      return data;
+    })
+  ;
+  let body2 = {
+		meal: "Classic Cheesecake",
+		ingredients: [
+			"Block cream cheese",
+			"Sugar",
+			"Sour cream",
+			"A little flavour",
+			"Eggs",
+		],
+		creator: "-Mk8_XZFSfVJlljXhnRa",
+		prepMethod:
+			"Four 8-ounce blocks of full-fat cream cheese are the base of this cheesecake. That’s 2 pounds. Make sure you’re buying the blocks of cream cheese and not cream cheese spread. There’s no diets allowed in cheesecake, so don’t pick up the reduced fat variety! 1 cup. Not that much considering how many mouths you can feed with this dessert. Over-sweetened cheesecake is hardly cheesecake anymore. Using only 1 cup of sugar gives this cheesecake the opportunity to balance tangy and sweet, just as classic cheesecake should taste. 1 cup. I recently tested cheesecake with 1 cup of heavy cream instead, but ended up sticking with my original (which can be found here with blueberry swirls!). I was curious about the heavy cream addition and figured it would yield a softer cheesecake bite. The cheesecake was soft, but lacked the stability and richness I wanted. It was almost too creamy. Sour cream is most definitely the right choice. 1 teaspoon of pure vanilla extract and 2 of lemon juice. The lemon juice brightens up the cheesecake’s overall flavor and vanilla is always a good idea. 3 eggs are the final ingredient. You’ll beat the eggs in last, one at a time, until they are *just* incorporated. Do not overmix the batter once the eggs are added. This will whip air into the cheesecake batter, resulting in cheesecake cracking and deflating.",
+		description:
+			"And as always, make sure all of the cheesecake batter ingredients are at room temperature so the batter remains smooth, even, and combines quickly. Beating cold ingredients together will result in a chunky over-beaten cheesecake batter, hardly the way we want to start!",
+		foodImageURL:
+			"https://cdn.sallysbakingaddiction.com/wp-content/uploads/2018/05/classic-cheesecake-recipe-3-600x900.jpg",
+		category: "Milk, cheese, eggs and alternatives",
+		likesCounter: 0,
+		categoryImageURL:
+			"https://image.shutterstock.com/image-photo/assorted-dairy-products-milk-yogurt-260nw-530162824.jpg",
+	};
+  let headers2 = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body2),
+  };
+  fetch(url, headers2)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log( "body2 call result", data.name); // recepie ID
+      return data;
+    })
+  ;
+  let body3 = {
+    meal: "Homemade Tortillas",
+    ingredients: [
+      "2 cups all-purpose flour",
+      "1/2 teaspoon salt",
+      "3/4 cup water",
+      "3 tablespoons olive oil",
+    ],
+    creator: "-Mk8_XZFSfVJlljXhnRa",
+    prepMethod:
+      "In a large bowl, combine flour and salt. Stir in water and oil. Turn onto a floured surface; knead 10-12 times, adding a little flour or water if needed to achieve a smooth dough. Let rest for 10 minutes. Divide dough into 8 portions. On a lightly floured surface, roll each portion into a 7-in. circle. In a greased cast-iron or other heavy skillet, cook tortillas over medium heat until lightly browned, 1 minute on each side. Keep warm.",
+    description:
+      "I usually have to double this flour tortilla recipe because we go through them so quickly. The homemade tortillas are so tender and chewy, you’ll never use store-bought again after learning how to make tortillas. —Kristin Van Dyken, West Richland, Washington",
+    foodImageURL:
+      "https://cdn.thewhoot.com/wp-content/uploads/2018/05/Tortilla-Homemade-Recipe-2.jpg",
+    category: "Grain Food",
+    likesCounter: 0,
+    categoryImageURL:
+      "https://cdn.pixabay.com/photo/2014/12/11/02/55/corn-syrup-563796__340.jpg",
+  };
+  let headers3 = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body3),
+  };
+  fetch(url, headers3)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log("body3 call result", data.name); // recepie ID
+      return data;
+    })
+  ;
 }
