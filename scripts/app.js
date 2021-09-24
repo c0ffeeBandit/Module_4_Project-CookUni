@@ -5,48 +5,42 @@ var successAlert = document.getElementById("successBox");
 var errorAlert = document.getElementById("errorBox");
 var infoAlert = document.getElementById("loadingBox");
 
-function listen() { // main loop!
+function route() { // main loop!
 	let current = getCurrent();
 
-	if (current !== hashRoute) {
-		// console.log( window.location.hash );
+	if ( current !== hashRoute ){
 		hashRoute = current;
-		renderNav();
+		renderNav(); // render proper nov for any page change
     let [i, idStr] = hashRoute.split("/");
-		if ( hashRoute == "#home" ) {
-			// console.log( "home();" );
+		if ( hashRoute == "#home" ){
       home();
-		} else if ( hashRoute == "#register" ) {
-      // console.log("register();");
+		} else if ( hashRoute == "#register" ){
 			register();
-		} else if ( hashRoute == "#logout") {
-      // console.log("logout();\nrenderNav();\nlogin();");
+		} else if ( hashRoute == "#logout" ){
       logout();
-      login();
 		} else if ( hashRoute.includes("recepie") ){
-      // console.log(`recepieInfo( ${idStr} );`);
 			recepieInfo( idStr );
 		} else if ( hashRoute.includes("edit") ){
-      // console.log(`recepieEdit( ${idStr} );`);
 			recepieEdit( idStr );
 		} else if ( hashRoute.includes("archive") ){
-      console.log(`deleteRecepie( ${idStr} );`);
 			deleteRecepie( idStr );
 		} else if ( hashRoute.includes("like") ){
-      console.log(`likeRecepie( ${idStr} );`);
 			likeRecepie( idStr );
-    } else if ( hashRoute == "#share") {
-      // console.log( "recepieShare();");
+    } else if ( hashRoute == "#share" ){
 			recepieShare();
-		} else if ( !user || !userObj || window.location.hash == "" || hashRoute == "#login" ){
-      // console.log( "login();");
+		} else if ( !user || 
+                !userObj ||
+                window.location.hash == "" ||
+                hashRoute == "#login"
+      ){
       login();
-		} else if( hashRoute == "#pancakes" || hsehRoute == "#makeFood "){
-      makeFood();
+		} else if( hashRoute == "#makeFood" ){
+      makeFood(); // for testing
     }
 	}
-	setTimeout( listen, 150 );
+	setTimeout( route, 150 );
 }
+//==================================== HELPERS ========================================================
 function validateUser(){
   if ( !user && !userObj ) {
 		console.log("Validate User Fail", user, JSON.stringify(userObj));
@@ -61,12 +55,12 @@ function render(html){
 function renderNav(){
 	if( !user && !userObj ){ // render logged out nav
 		document.getElementById("nav").innerHTML = document.getElementById("navLoggedOut").innerHTML;
-	}else{ // render logged in nav
-		// console.log( "renderNav for:", userObj.firstName, userObj.lastName, "With ID:", user );
+	}else{
+		// console.log( "renderNav for:", `${userObj.firstName} ${userObj.lastName}`, " ID:", user );
 		let src = document.getElementById("navLoggedIn").innerHTML;
-		let template = Handlebars.compile( src );
+		let template = Handlebars.compile(src);
 		let context = { name: `${userObj.firstName} ${userObj.lastName}` };
-		let html = template( context );
+		let html = template(context);
 		document.getElementById("nav").innerHTML = html;
 	}
 }
@@ -87,7 +81,7 @@ function getCatImgURL( category ){ // could do this with an object later
       return "https://t3.ftcdn.net/jpg/01/18/84/52/240_F_118845283_n9uWnb81tg8cG7Rf9y3McWT1DT1ZKTDx.jpg";
   }
 }
-function getCatIdx( category ){
+function getCatIdx( category ){ // this can also be an object ... but never became a prioroty
   switch (category) {
 		case "Vegetables and legumes/beans":
 			return 1;
@@ -101,13 +95,15 @@ function getCatIdx( category ){
 			return 5;
 	}
 }
+//==================================== LOGOUT ========================================================
 function logout() {
-	setSuccessBox("Logout successful.");
 	userObj = undefined;
 	user = undefined;
+  // No REST logout call with this application, had it stayed kinvey, i was using auth tokens
+  setSuccessBox("Logout successful.");
 	window.location.hash = "";
 }
-//====================================================================================================
+//==================================== LOGIN / LOGIN CLICK ===========================================
 function login(){
 	let src = document.getElementById("loginTemplate").innerHTML;
 	let template = Handlebars.compile(src);
@@ -144,14 +140,17 @@ function loginClick(){
 					user = newUsers[idx][0];
 					userObj = newUsers[idx][1];
 					userObj.userID = newUsers[idx][0];
-					console.log("logged in",	userObj.firstName, userObj.lastName, user, JSON.stringify(userObj) );
+					// console.log( "logged in", `${userObj.firstName} ${userObj.lastName}`, user, JSON.stringify(userObj) );
           setInfoBox();
 					window.location.hash = "#home";
+          return;
 				}
 			}
+      setErrorBox("Invalid Credentials. Please try your request with correct credentials.");
+      return;
 		});
 }
-//====================================================================================================
+//==================================== REGISTER / REGISTER CLICK =====================================
 function register(){
 	// and registerClick()
 	let src = document.getElementById("registerTemplate").innerHTML;
@@ -176,46 +175,47 @@ function registerClick(){
 	let passError = "Passwords do not match. Please retry your request with matching first and second passwords.";
 	let valid = true;
   let errorStr = "";
-	if( !firstName.value && firstName.length < 2 ){
+	if( firstName.value.length < 2 ){
 		valid = false;
     errorStr += "\n  First Name must be longer than 2 characters.";
 		firstName.style.borderColor = "red";
 	}else{
 		firstName.style.borderColor = "green";
 	}
-	if( !lastName.value && lastName.length < 2 ){
+	if ( lastName.value.length < 2 ) {
 		valid = false;
-    errorStr += "\n  Last Name must be longer than 2 characters.";
+		errorStr += "\n  Last Name must be longer than 2 characters.";
 		lastName.style.borderColor = "red";
-	}else{
+	} else {
 		lastName.style.borderColor = "green";
 	}
-	if( !userName.value && userName.length < 3 ){
+	if ( userName.value.length < 3 ) {
 		valid = false;
-    errorStr += "\n  User Name must be longer than 3 characters.";
+		errorStr += "\n  User Name must be longer than 3 characters.";
 		userName.style.borderColor = "red";
 	} else {
 		userName.style.borderColor = "green";
 	}
-	if( !firstPass.value && firstPass.length < 6 ){
+	if ( firstPass.value.length < 6 ) {
 		valid = false;
-    errorStr += "\n  First Password must be longer than 6 characters.";    
+		errorStr += "\n  First Password must be longer than 6 characters.";
 		firstPass.style.borderColor = "red";
 	} else {
 		firstPass.style.borderColor = "green";
 	}
-	if( !secondPass.value && secondPass.length < 6 ){
+	if ( secondPass.value.length < 6 ) {
 		valid = false;
-    errorStr += "\n  Second Password must be longer than 6 characters.";    
+		errorStr += "\n  Second Password must be longer than 6 characters.";
 		secondPass.style.borderColor = "red";
 	} else {
 		secondPass.style.borderColor = "green";
 	}
   if( !valid ){
+    // errorStr += " *** Debug: " + firstName.value + ` (len: ${firstName.value.length}) ` + lastName.value + ` (len: ${lastName.value.length}) ` + userName.value + ` (len: ${userName.value.length}) ` + firstPass.value + ` (len: ${firstPass.value.length}) ` + secondPass.value + ` (len: ${secondPass.value.length})`;
     setErrorBox(`Please fix as follows and try again; ${errorStr}`);
     return;
   }
-	if (firstPass.value != secondPass.value) {
+	if ( firstPass.value != secondPass.value ) {
 		setErrorBox( passError );
 		return;
 	} else {
@@ -231,7 +231,7 @@ function registerClick(){
 				// console.log( Object.entries(data) );
 				let newUsers = Object.entries(data);
 				for (let idx in newUsers) {
-					// console.log( idx, newUsers[idx], newUsers[idx][1].userName, newUsers[idx][1].password );
+					console.log( idx, newUsers[idx], newUsers[idx][1].userName, newUsers[idx][1].password );
 					if (
 						newUsers[idx][1].userName == userName.value &&
 						newUsers[idx][1].password == firstPass.value
@@ -242,42 +242,44 @@ function registerClick(){
 						return;
 					}
 				}
-			});
+        let body = {
+          userName: userName.value,
+          password: firstPass.value,
+          firstName: firstName.value,
+          lastName: lastName.value,
+        };
+        let headers = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        };
+        // console.log(JSON.stringify(body));
+        fetch(url, headers)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            // console.log(data);
+            user = data.name;
+            body.userID = data.name;
+            return data;
+          })
+        ;
+        userName.value = "";
+        firstPass.value = "";
+        firstName.value = "";
+        lastName.value = "";
+        setSuccessBox("User registration successful.");
+        userObj = body;
+        window.location.hash = "#home";
+        setInfoBox(); // Loading...
+			})
+    ;
 	}
-	let body = {
-		userName: userName.value,
-		password: firstPass.value,
-		firstName: firstName.value,
-		lastName: lastName.value,
-	};
-	let headers = {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(body),
-	};
-	// console.log(JSON.stringify(body));
-	fetch(url, headers)
-		.then(function (response) {
-			return response.json();
-		})
-		.then(function (data) {
-			// console.log(data);
-			user = data.name;
-      body.userID = data.name;
-			return data;
-		});
-  userName.value = "";
-  firstPass.value = "";
-  firstName.value = "";
-  lastName.value = ""; 
-  setSuccessBox("User registration successful.");
-  userObj = body;
-	window.location.hash = "#home";
-  setInfoBox();
 }
-//====================================================================================================
+//==================================== HOME ==========================================================
 function home(){
 	if ( !validateUser() ){ return; }
 	let url = "https://cookuniproject-default-rtdb.firebaseio.com/recepies.json";
@@ -290,7 +292,6 @@ function home(){
     })
     .then(function (data) {
       // console.log("RecepieID", data.name); // recepie ID
-      console.log( JSON.stringify( data ) );
       if( !data ){ // food not found!
         let src = document.getElementById("fnf").innerHTML;
 				let template = Handlebars.compile(src);
@@ -299,7 +300,8 @@ function home(){
 				render(html);
 				return;
       }
-      render(JSON.stringify(data)); // just to see what came back on the page
+      // console.log(JSON.stringify(data));
+      // render(JSON.stringify(data)); // just to see what came back on the page
       let finalData = [];
       let initData = Object.entries(data);
       for ( const entry of initData ){ // make it like handlebars expects
@@ -316,9 +318,8 @@ function home(){
       render( html );
       return data;
   });
-	// TODO test fnf !
 }
-//====================================================================================================
+//==================================== SHARE / SHARE CLICK ===========================================
 function recepieShare(){
   if ( !validateUser() ){ return; }
   let src = document.getElementById("recepieShare").innerHTML;
@@ -336,6 +337,7 @@ function shareRecepieClick(){
 	if ( !validateUser() ){ return; }
 	let meal = document.getElementById("defaultRecepieShareMeal");
 	let ingredients = document.getElementById("defaultRecepieShareIngredients");
+  let ingredientArr = JSON.parse(ingredients.value);
 	let preparation = document.getElementById("defaultRecepieShareMethodOfPreparation");
 	let foodImgURL = document.getElementById("defaultRecepieShareFoodImageURL");
 	let description = document.getElementById("defaultRecepieShareDescription");
@@ -343,63 +345,55 @@ function shareRecepieClick(){
 	let catImgURL = getCatImgURL(category[category.selectedIndex].value); // string
 	let valid = true;
   let errorStr = "";
-	if (!meal.value && meal.length < 4) {
+	if ( meal.length < 4 ){
 		valid = false;
-    errorStr += "\n  Meal Name must be longer than 4 characters.";    
+    errorStr += "<br> Meal Name must be longer than 4 characters.";    
 		meal.style.borderColor = "red";
 	} else {
 		meal.style.borderColor = "green";
 	}
-	if (
-		!ingredients.value &&
-		ingredients.length < 2 &&
-		Array.isArray(ingredients)
-	) {
+	if ( ingredientArr.length < 2 && Array.isArray(ingredientArr) ){
 		valid = false;
-    errorStr += "\n  Ingredients must be an array of at least 2 entries.";    
+		errorStr += "<br> Ingredients must be an array of at least 2 entries.";
 		ingredients.style.borderColor = "red";
 	} else {
 		ingredients.style.borderColor = "green";
 	}
-	if (!preparation.value && preparation.length < 10) {
+	if ( preparation.length < 10 ){
 		valid = false;
-		errorStr += "\n  Preparation Method must be longer than 10 characters.";    
+		errorStr += "<br> Preparation Method must be longer than 10 characters.";    
     preparation.style.borderColor = "red";
 	} else {
 		preparation.style.borderColor = "green";
 	}
-	if (
-		!foodImgURL.value &&
-		!(foodImgURL.includes("http://") || foodImgURL.includes("https://"))
-	) {
+	if ( !( foodImgURL.includes("http://") || foodImgURL.includes("https://") ) ){ // only true when neither is true
 		valid = false;
-		errorStr += "\n  Food Image Url must include http:// or https://";    
+		errorStr += "<br> Food Image Url must include http:// or https://";    
     foodImgURL.style.borderColor = "red";
 	} else {
 		foodImgURL.style.borderColor = "green";
 	}
-	if (!description.value && description.length < 10) {
+	if ( description.length < 10 ){
 		valid = false;
-    errorStr += "\n  Description must be longer than 10 characters.";    
+    errorStr += "<br> Description must be longer than 10 characters.";    
 		description.style.borderColor = "red";
 	} else {
 		description.style.borderColor = "green";
 	}
-	if (category.selectedIndex == 0) {
+	if ( category.selectedIndex == 0 ){
 		valid = false;
-    errorStr += "\n  Category must be selected from the list (not left at default).";    
+    errorStr += "<br> Category must be selected from the list (not left at default).";    
 		category.style.borderColor = "red";
 	} else {
 		category.style.borderColor = "green";
 	}
-	if (!valid) {
+	if ( !valid ){
 		setErrorBox(`Please fix as follows and try again; ${errorStr}`);
 		return;
 	}
-	// construct data item for recepie body
 	let body = {
 		meal: meal.value,
-		ingredients: ingredients.value,
+		ingredients: ingredientArr,
 		prepMethod: preparation.value,
 		description: description.value,
 		foodImageURL: foodImgURL.value,
@@ -419,24 +413,25 @@ function shareRecepieClick(){
   setInfoBox("Sending...");
 	// console.log(JSON.stringify(body));
 	fetch(url, headers)
-		.then(function (response) {
+		.then(function (response){
 			clearInfoBox();
 			return response.json();
 		})
-		.then(function (data) {
+		.then(function (data){
 			// console.log(data.name); // recepie ID
       setSuccessBox("Recipe shared successfully!");
-      document.getElementById("editMeal").value = "";
-      document.getElementById("editIngredients").value = "";
-      document.getElementById("editPreparation").value = "";
-      document.getElementById("editFoodImageURL").value = "";
+      document.getElementById("defaultRecepieShareMeal").value = "";
+      document.getElementById("defaultRecepieShareIngredients").value = "";
+      document.getElementById("defaultRecepieShareMethodOfPreparation").value = "";
+      document.getElementById("defaultRecepieShareDescription").value = "";
       document.getElementById("editDescription").value = "";
       setInfoBox();
       window.location.hash = "#home";
 			return data;
-		});
+		})
+  ;
 }
-//====================================================================================================
+//==================================== EDIT / EDIT CLICK =============================================
 function recepieEdit( idStr ) {
 	if ( !validateUser() ){ return; }
   // console.log("Get recepie:", idStr, "and render in recepieEdit template");
@@ -470,7 +465,7 @@ function sendEditRecepie() {
 	if ( !validateUser() ){ return; }
 	let meal = document.getElementById("defaultRecepieEditMeal");
 	let ingredients = document.getElementById("defaultRecepieEditIngredients");
-  let ingredientArr = JSON.parse(ingredients.value);
+  let ingredientArr = JSON.parse( ingredients.value );
 	let preparation = document.getElementById("defaultRecepieEditMethodOfPreparation");
 	let foodImgURL = document.getElementById("defaultRecepieEditFoodImageURL");
 	let description = document.getElementById("defaultRecepieEditDescription");
@@ -479,59 +474,53 @@ function sendEditRecepie() {
 	let category = document.getElementById("editCategory");
 	let catImgURL = getCatImgURL(category[category.selectedIndex].value); // hardcoded URL string
 	let valid = true;
-  // console.log( "Before", ingredients.value );
-  // ingredients.value = JSON.parse(ingredients.value);
-  console.log( "Debug", ingredientArr, Array.isArray( ingredientArr ) );
+  // console.log( "Debug", ingredientArr, Array.isArray( ingredientArr ) );
   let errorStr = "";
-  if (!meal.value && meal.length < 4) {
+  if ( meal.length < 4 ){
     valid = false;
-    errorStr += "\n  Meal Name must be longer than 4 characters.";
+    errorStr += "<br> Meal Name must be longer than 4 characters.";
     meal.style.borderColor = "red";
   } else {
     meal.style.borderColor = "green";
   }
-  if ( ingredientArr.length < 2 || !Array.isArray( ingredientArr ) ) {
+  if ( ingredientArr.length < 2 || !Array.isArray( ingredientArr ) ){
 		valid = false;
-		errorStr += "\n  Ingredients must be an array of at least 2 entries.";
+		errorStr += "<br> Ingredients must be an array of at least 2 entries.";
 		ingredients.style.borderColor = "red";
 	} else {
 		ingredients.style.borderColor = "green";
 	}
-  if (!preparation.value && preparation.length < 10) {
+  if ( preparation.length < 10 ){
     valid = false;
-    errorStr += "\n  Preparation Method must be longer than 10 characters.";
+    errorStr += "<br> Preparation Method must be longer than 10 characters.";
     preparation.style.borderColor = "red";
   } else {
     preparation.style.borderColor = "green";
   }
-  if (
-    !foodImgURL.value &&
-    !(foodImgURL.includes("http://") || foodImgURL.includes("https://"))
-  ) {
+  if ( !( foodImgURL.includes("http://") || foodImgURL.includes("https://") ) ){ // not( false or false) == true
     valid = false;
-    errorStr += "\n  Food Image Url must include http:// or https://";
+    errorStr += "<br> Food Image Url must include http:// or https://";
     foodImgURL.style.borderColor = "red";
   } else {
     foodImgURL.style.borderColor = "green";
   }
-  if (!description.value && description.length < 10) {
+  if ( description.length < 10 ){
     valid = false;
-    errorStr += "\n  Description must be longer than 10 characters.";
+    errorStr += "<br> Description must be longer than 10 characters.";
     description.style.borderColor = "red";
   } else {
     description.style.borderColor = "green";
   }
-  if (category.selectedIndex == 0) {
+  if ( category.selectedIndex == 0 ){
     valid = false;
     errorStr +=
-      "\n  Category must be selected from the list (not left at default).";
+			"<br> Category must be selected from the list (not left at default).";
     category.style.borderColor = "red";
   } else {
     category.style.borderColor = "green";
   }
-  if (!valid) {
+  if ( !valid ){
     setErrorBox(`Please fix as follows and try again; ${errorStr}`);
-    console.log(`Please fix as follows and try again; ${errorStr}`);
     return;
   }
 	// construct data item for recepie body
@@ -577,7 +566,7 @@ function sendEditRecepie() {
 			return data;
 		});
 }
-//====================================================================================================
+//===================================== INFO / DELETE / LIKE =========================================
 function recepieInfo( idStr ){ // load and render a specific recepie with idString
 	if ( !validateUser() ){ return; }
 	// console.log("Get recepie:", idStr, "and render in recepieEdit template");
@@ -625,6 +614,7 @@ function deleteRecepie( idStr ){
 			clearInfoBox();
 			setSuccessBox("Your recipe was archived.");
 			window.location.hash = "#home";
+      setInfoBox();
 		}
   });
 }
@@ -666,10 +656,11 @@ function likeRecepie( idStr ){
           console.log( JSON.stringify( data ) );
           setSuccessBox("You liked that recipe.");
           window.location.hash = "#home";
+          setInfoBox();
         });
     });
 }
-//====================================================================================================
+//====================================== NOTIFICATIONS ===============================================
 function setSuccessBox( str ){
   successAlert.innerHTML = str;
   successAlert.style.display = "block";
@@ -692,16 +683,17 @@ function clearInfoBox(){
 function setErrorBox( str ){
 	errorAlert.innerHTML = str;
 	errorAlert.style.display = "block";
-	window.setTimeout( clearErrorBox, 5000 ); // self nuking frankfurter
+  document.getElementById("notifications").focus();
 }
 function clearErrorBox(){
   errorAlert.style.display = "none";
 }
-function makeFood(){ // Dalek says: REPOPULATE! (with dbroadwell's ID)
+//====================================== MAKE FOOD ==================================================
+function makeFood(){ // Dalek says: REPOPULATE! (with logged in user ID)
   let body1 = {
     category: "Grain Food",
     categoryImageURL: "https://cdn.pixabay.com/photo/2014/12/11/02/55/corn-syrup-563796__340.jpg",
-    creator: "-Mk8_XZFSfVJlljXhnRa",
+    creator: user,
     description: "This is a great recipe that I found in my Grandma's recipe book. Judging from the weathered look of this recipe card, this was a family favorite.",
     foodImageURL: "https://images.media-allrecipes.com/userphotos/720x405/4948036.jpg",
     ingredients: [
@@ -711,7 +703,7 @@ function makeFood(){ // Dalek says: REPOPULATE! (with dbroadwell's ID)
       "1 tablespoon white sugar",
       "1 1/4 cups milk",
       "1 egg",
-      "3 tablespoons butter, melted",
+      "3 tablespoons butter, melted", // dick move, putting commas IN the data.json meant i could not split on ','
     ],
     likesCounter: 3,
     meal: "Good Old Fashioned Pancakes",
@@ -743,7 +735,7 @@ function makeFood(){ // Dalek says: REPOPULATE! (with dbroadwell's ID)
 			"A little flavour",
 			"Eggs",
 		],
-		creator: "-Mk8_XZFSfVJlljXhnRa",
+		creator: user,
 		prepMethod:
 			"Four 8-ounce blocks of full-fat cream cheese are the base of this cheesecake. That’s 2 pounds. Make sure you’re buying the blocks of cream cheese and not cream cheese spread. There’s no diets allowed in cheesecake, so don’t pick up the reduced fat variety! 1 cup. Not that much considering how many mouths you can feed with this dessert. Over-sweetened cheesecake is hardly cheesecake anymore. Using only 1 cup of sugar gives this cheesecake the opportunity to balance tangy and sweet, just as classic cheesecake should taste. 1 cup. I recently tested cheesecake with 1 cup of heavy cream instead, but ended up sticking with my original (which can be found here with blueberry swirls!). I was curious about the heavy cream addition and figured it would yield a softer cheesecake bite. The cheesecake was soft, but lacked the stability and richness I wanted. It was almost too creamy. Sour cream is most definitely the right choice. 1 teaspoon of pure vanilla extract and 2 of lemon juice. The lemon juice brightens up the cheesecake’s overall flavor and vanilla is always a good idea. 3 eggs are the final ingredient. You’ll beat the eggs in last, one at a time, until they are *just* incorporated. Do not overmix the batter once the eggs are added. This will whip air into the cheesecake batter, resulting in cheesecake cracking and deflating.",
 		description:
@@ -779,7 +771,7 @@ function makeFood(){ // Dalek says: REPOPULATE! (with dbroadwell's ID)
       "3/4 cup water",
       "3 tablespoons olive oil",
     ],
-    creator: "-Mk8_XZFSfVJlljXhnRa",
+    creator: user,
     prepMethod:
       "In a large bowl, combine flour and salt. Stir in water and oil. Turn onto a floured surface; knead 10-12 times, adding a little flour or water if needed to achieve a smooth dough. Let rest for 10 minutes. Divide dough into 8 portions. On a lightly floured surface, roll each portion into a 7-in. circle. In a greased cast-iron or other heavy skillet, cook tortillas over medium heat until lightly browned, 1 minute on each side. Keep warm.",
     description:
@@ -807,4 +799,5 @@ function makeFood(){ // Dalek says: REPOPULATE! (with dbroadwell's ID)
       return data;
     })
   ;
+  window.location.hash = "#home";
 }

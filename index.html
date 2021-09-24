@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.css" />
-		<!-- <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui/dist/css/coreui.min.css"> -->
     <link rel="stylesheet" href="./styles/styles.css" />
     <title>CookUni</title>
 </head>
-
 <body>
     <div id="rooter" class="cover-container w-100 d-flex h-100 p-3 mx-auto flex-column">
-
 				<header class="masthead mb-auto">
             <div class="inner">
                 <h3 class="masthead-brand">CookUni</h3>
@@ -21,22 +17,19 @@
                 </nav>
             </div>
         </header>
-
+        <main role="main" class="inner cover mt-5">
+            <h1 class="cover-heading text-center">(Cook)ing (Uni)versity</h1>
+            <p class="lead text-center">Food is part art, part organic chemistry.</p>
+						<p class="lead text-center">Food is nutrition and love. Food can harm. Food can heal.</p>
+						<p class="lead text-center">Food is universal ... We all love flavor, sometimes we all need basic.</p>
+						<p class="lead text-center">They say that food passes through the stomach, we say that food passes through CookUni...</p>
+        </main>
         <div id="notifications">
             <div id="successBox" class="alert alert-success alert-dismissible" role="alert" onclick="clearSuccessBox();">{Success Message...}</div>
             <div id="loadingBox" class="alert alert-info alert-dismissible" role="alert" onclick="clearInfoBox();">Loading...</div>
             <div id="errorBox" class="alert alert-danger alert-dismissible" role="alert" onclick="clearErrorBox();">{Error Message...}</div>
         </div>
-
-        <main role="main" class="inner cover mt-5">
-            <h1 class="cover-heading text-center">(Cook)ing (Uni)versity</h1>
-            <p class="lead text-center">Food is part art, part organic chemistry.
-							Food is nutrition and love. Food can harm. Food can heal. Food is universal ... We all love flavor, sometimes we all need basic. They say that food passes through the stomach, we say that food passes through CookUni...
-            </p>
-        </main>
-
 				<div id="container"></div>
-
         <footer class="mastfoot mt-5 text-center text-light">
             <div class="inner">
                 <p>Made with &hearts; by <a href="#home">CookUni</a>.</p>
@@ -49,8 +42,6 @@
 <!-- Libraries -->
 <script src="./node_modules/jquery/dist/jquery.js"></script>
 <script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
-<!-- <script src="./node_modules/handlebars/dist/handlebars.js"></script> -->
-<!-- <script src="https://unpkg.com/@coreui/coreui@3.4.0/dist/js/coreui.min.js"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 <!--My Libraries-->
 <script src="./scripts/app.js"></script>
@@ -98,17 +89,12 @@
 </script>
 <script id="navLoggedIn" type="text/x-handlebars-template">
 	<a class="nav-link" href="#home">Home</a>
-	<!-- <a class="nav-link" id="login-welcome" href="#home">Welcome, {{name}}!</a> 
-	<a class="nav-link" id="share" href="#share">Share recipe</a>
-	<a class="nav-link" id="logout" href="#logout">Logout</a> -->
 	<a class="nav-link" href="#home">Welcome, {{name}}!</a> 
 	<a class="nav-link" href="#share">Share recipe</a>
 	<a class="nav-link" href="#logout">Logout</a>
 </script>
 <script id="navLoggedOut" type="text/x-handlebars-template">
 	<a class="nav-link" href="#home">Home</a>
-	<!-- <a class="nav-link" id="login" href="#login">Login</a>
-	<a class="nav-link" id="register" href="#register">Register</a> -->
 	<a class="nav-link" href="#login">Login</a>
 	<a class="nav-link" href="#register">Register</a>	
 </script>
@@ -236,5 +222,5 @@
 	<p>Not already a CookUni user? <a href="#register">Register here</a>.</p>
 </script>
 <!-- Wake the code! -->
-<script>listen();// run main (only) loop call this, last!</script>
+<script>route();</script>
 </html>
