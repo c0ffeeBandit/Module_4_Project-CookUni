@@ -1,16 +1,13 @@
-let hashRoute = undefined; // explicit paranioa
-let userObj = undefined; // copy of user object from firebase, PLUS userID
-let user = undefined; // for user ID
-var successAlert = document.getElementById("successBox");
-var errorAlert = document.getElementById("errorBox");
-var infoAlert = document.getElementById("loadingBox");
+let hashRoute = undefined; // explicit paranioa to assure it is global. no surprises.
+let userObj = undefined; // copy of user object from firebase, PLUS { userID: user }
+let user = undefined; // for user ID ... i can eliminate this in favor of userObj.
 
 function route() { // main loop!
 	let current = getCurrent();
 
 	if ( current !== hashRoute ){
 		hashRoute = current;
-		renderNav(); // render proper nov for any page change
+		renderNav(); // render proper nav for any page change per user, one line to handle ALL requirements.
     let [i, idStr] = hashRoute.split("/");
 		if ( hashRoute == "#home" ){
       home();
@@ -28,9 +25,9 @@ function route() { // main loop!
 			likeRecepie( idStr );
     } else if ( hashRoute == "#share" ){
 			recepieShare();
-		} else if ( !user || 
-                !userObj ||
-                window.location.hash == "" ||
+		} else if ( // !user || 
+                // !userObj ||
+                // window.location.hash == "" ||
                 hashRoute == "#login"
       ){
       login();
@@ -41,18 +38,19 @@ function route() { // main loop!
 	setTimeout( route, 150 );
 }
 //==================================== HELPERS ========================================================
-function validateUser(){
+function validateUser(){ // Do I know who you are? If not run logout, else return true.
   if ( !user && !userObj ) {
-		console.log("Validate User Fail", user, JSON.stringify(userObj));
+		// console.log("Validate User Fail", user, JSON.stringify(userObj));
 		window.location.hash = "#logout";
 		return false;
 	}
   return true;
 }
-function render(html){
+function render(html){ // put the stuff in the container div, make sure it is visible.
   document.getElementById("container").innerHTML = html;
+  document.getElementById("container").style.display = "block";
 }
-function renderNav(){
+function renderNav(){ // render the nav based in user data, don't foribly logout.
 	if( !user && !userObj ){ // render logged out nav
 		document.getElementById("nav").innerHTML = document.getElementById("navLoggedOut").innerHTML;
 	}else{
@@ -64,10 +62,10 @@ function renderNav(){
 		document.getElementById("nav").innerHTML = html;
 	}
 }
-function getCurrent(){
+function getCurrent(){ // get the 'hash' of the url
   return window.location.hash;
 }
-function getCatImgURL( category ){ // could do this with an object later
+function getCatImgURL( category ){ // get URL for category from category data ... could do this with an object later
   switch ( category ) {
     case "Vegetables and legumes/beans":
       return "https://cdn.pixabay.com/photo/2017/10/09/19/29/eat-2834549__340.jpg";
@@ -81,8 +79,8 @@ function getCatImgURL( category ){ // could do this with an object later
       return "https://t3.ftcdn.net/jpg/01/18/84/52/240_F_118845283_n9uWnb81tg8cG7Rf9y3McWT1DT1ZKTDx.jpg";
   }
 }
-function getCatIdx( category ){ // this can also be an object ... but never became a prioroty
-  switch (category) {
+function getCatIdx( category ){ // get URL for category from category data ... this can also be an object ...
+	switch (category) {
 		case "Vegetables and legumes/beans":
 			return 1;
 		case "Fruits":
@@ -96,15 +94,20 @@ function getCatIdx( category ){ // this can also be an object ... but never beca
 	}
 }
 //==================================== LOGOUT ========================================================
-function logout() {
+function logout(){ // No, improper user, reset the SPA to default (show main)
 	userObj = undefined;
 	user = undefined;
   // No REST logout call with this application, had it stayed kinvey, i was using auth tokens
   setSuccessBox("Logout successful.");
 	window.location.hash = "";
+  // render("");
+  // show main
+  document.getElementById("main").style.display = "block";
+  document.getElementById("container").innerHTML = "";
 }
 //==================================== LOGIN / LOGIN CLICK ===========================================
-function login(){
+function login(){ // render login screen, hide main
+  document.getElementById("main").style.display = "none";
 	let src = document.getElementById("loginTemplate").innerHTML;
 	let template = Handlebars.compile(src);
 	let context = {}; // {{ N/A }}
@@ -116,7 +119,7 @@ function login(){
 		loginClick();
 	});
 }
-function loginClick(){
+function loginClick(){ // process login click
 	console.log( "Login button clicked." );
 	let userName = document.getElementById("defaultRegisterFormUsername").value;
 	let password = document.getElementById("defaultRegisterFormPassword").value;
@@ -151,8 +154,8 @@ function loginClick(){
 		});
 }
 //==================================== REGISTER / REGISTER CLICK =====================================
-function register(){
-	// and registerClick()
+function register(){ // rencer the register screen, hide main
+  document.getElementById("main").style.display = "none";
 	let src = document.getElementById("registerTemplate").innerHTML;
 	let template = Handlebars.compile(src);
 	let context = {}; // {{ N/A }}
@@ -164,7 +167,7 @@ function register(){
 		registerClick();
 	});
 }
-function registerClick(){
+function registerClick(){ // process the register click
 	let firstName = document.getElementById("defaultRegisterFormFirstName");
 	let lastName = document.getElementById("defaultRegisterFormLastName");
 	let userName = document.getElementById("defaultRegisterFormUsername");
@@ -280,7 +283,7 @@ function registerClick(){
 	}
 }
 //==================================== HOME ==========================================================
-function home(){
+function home(){ // get data and generate the home recepie cards or food not found
 	if ( !validateUser() ){ return; }
 	let url = "https://cookuniproject-default-rtdb.firebaseio.com/recepies.json";
   setInfoBox();
@@ -320,7 +323,7 @@ function home(){
   });
 }
 //==================================== SHARE / SHARE CLICK ===========================================
-function recepieShare(){
+function recepieShare(){ // render the share recepie screen
   if ( !validateUser() ){ return; }
   let src = document.getElementById("recepieShare").innerHTML;
   let template = Handlebars.compile(src);
@@ -333,24 +336,31 @@ function recepieShare(){
 		shareRecepieClick();
 	});
 }
-function shareRecepieClick(){
+function shareRecepieClick(){ // process share recepie click
 	if ( !validateUser() ){ return; }
+  let valid = true;
+  let errorStr = "";
 	let meal = document.getElementById("defaultRecepieShareMeal");
 	let ingredients = document.getElementById("defaultRecepieShareIngredients");
-  let ingredientArr = JSON.parse(ingredients.value);
+  let ingredientArr = [];
 	let preparation = document.getElementById("defaultRecepieShareMethodOfPreparation");
 	let foodImgURL = document.getElementById("defaultRecepieShareFoodImageURL");
 	let description = document.getElementById("defaultRecepieShareDescription");
 	let category = document.getElementById("shareCategory");
 	let catImgURL = getCatImgURL(category[category.selectedIndex].value); // string
-	let valid = true;
-  let errorStr = "";
-	if ( meal.length < 4 ){
+
+	if ( !meal.value || meal.length < 4 ){
 		valid = false;
     errorStr += "<br> Meal Name must be longer than 4 characters.";    
 		meal.style.borderColor = "red";
 	} else {
 		meal.style.borderColor = "green";
+	}
+  if (ingredients.value != "") {
+		ingredientArr = JSON.parse(ingredients.value);
+	} else {
+		valid = false;
+		errorStr += "<br> Ingredients cannot be blank.";
 	}
 	if ( ingredientArr.length < 2 && Array.isArray(ingredientArr) ){
 		valid = false;
@@ -359,21 +369,28 @@ function shareRecepieClick(){
 	} else {
 		ingredients.style.borderColor = "green";
 	}
-	if ( preparation.length < 10 ){
+	if ( !preparation.value || preparation.value.length < 10 ){
 		valid = false;
 		errorStr += "<br> Preparation Method must be longer than 10 characters.";    
     preparation.style.borderColor = "red";
 	} else {
 		preparation.style.borderColor = "green";
 	}
-	if ( !( foodImgURL.includes("http://") || foodImgURL.includes("https://") ) ){ // only true when neither is true
-		valid = false;
-		errorStr += "<br> Food Image Url must include http:// or https://";    
+  if( foodImgURL.value ){
+		if (!(foodImgURL.value.includes("http://") || foodImgURL.value.includes("https://"))) {
+			// only true when neither is true
+			valid = false;
+			errorStr += "<br> Food Image Url must include http:// or https://";
+			foodImgURL.style.borderColor = "red";
+		} else {
+			foodImgURL.style.borderColor = "green";
+		}
+	}else{
+    valid = false;
+    errorStr += "<br> Food Image Url must not be blank.";
     foodImgURL.style.borderColor = "red";
-	} else {
-		foodImgURL.style.borderColor = "green";
-	}
-	if ( description.length < 10 ){
+  }
+	if ( !description.value || description.length < 10 ){
 		valid = false;
     errorStr += "<br> Description must be longer than 10 characters.";    
 		description.style.borderColor = "red";
@@ -388,7 +405,7 @@ function shareRecepieClick(){
 		category.style.borderColor = "green";
 	}
 	if ( !valid ){
-		setErrorBox(`Please fix as follows and try again; ${errorStr}`);
+		setErrorBox(`Please fix as follows and try again; <br> ${errorStr}`);
 		return;
 	}
 	let body = {
@@ -424,7 +441,7 @@ function shareRecepieClick(){
       document.getElementById("defaultRecepieShareIngredients").value = "";
       document.getElementById("defaultRecepieShareMethodOfPreparation").value = "";
       document.getElementById("defaultRecepieShareDescription").value = "";
-      document.getElementById("editDescription").value = "";
+      document.getElementById("defaultRecepieShareFoodImageURL").value = "";
       setInfoBox();
       window.location.hash = "#home";
 			return data;
@@ -432,7 +449,7 @@ function shareRecepieClick(){
   ;
 }
 //==================================== EDIT / EDIT CLICK =============================================
-function recepieEdit( idStr ) {
+function recepieEdit( idStr ){ // render the edit recepie screen
 	if ( !validateUser() ){ return; }
   // console.log("Get recepie:", idStr, "and render in recepieEdit template");
 	let url = `https://cookuniproject-default-rtdb.firebaseio.com/recepies/${idStr}.json`;
@@ -461,7 +478,7 @@ function recepieEdit( idStr ) {
     return data;
   });
 }
-function sendEditRecepie() {
+function sendEditRecepie() { // process edit recepie click
 	if ( !validateUser() ){ return; }
 	let meal = document.getElementById("defaultRecepieEditMeal");
 	let ingredients = document.getElementById("defaultRecepieEditIngredients");
@@ -497,7 +514,7 @@ function sendEditRecepie() {
   } else {
     preparation.style.borderColor = "green";
   }
-  if ( !( foodImgURL.includes("http://") || foodImgURL.includes("https://") ) ){ // not( false or false) == true
+  if ( !( foodImgURL.value.includes("http://") || foodImgURL.value.includes("https://") ) ){ // not( false or false) == true
     valid = false;
     errorStr += "<br> Food Image Url must include http:// or https://";
     foodImgURL.style.borderColor = "red";
@@ -596,7 +613,7 @@ function recepieInfo( idStr ){ // load and render a specific recepie with idStri
     return data;
   });
 }
-function deleteRecepie( idStr ){
+function deleteRecepie( idStr ){ // process archive recepie click
 	if ( !validateUser() ){ return; }
   let url = `https://cookuniproject-default-rtdb.firebaseio.com/recepies/${idStr}.json`;
   // let body = {};
@@ -618,7 +635,7 @@ function deleteRecepie( idStr ){
 		}
   });
 }
-function likeRecepie( idStr ){
+function likeRecepie( idStr ){ // process like recepie click
 	if ( !validateUser() ){ return; }
   console.log( `Like Link Clicked for ${idStr}.`);
   let body = {};
@@ -661,31 +678,35 @@ function likeRecepie( idStr ){
     });
 }
 //====================================== NOTIFICATIONS ===============================================
-function setSuccessBox( str ){
+var successAlert = document.getElementById("successBox");
+var errorAlert = document.getElementById("errorBox");
+var infoAlert = document.getElementById("loadingBox");
+function setSuccessBox( str ){ // setup and show success notification (self nuking)
   successAlert.innerHTML = str;
   successAlert.style.display = "block";
 	window.setTimeout( clearSuccessBox, 5000 ); // self nuking frankfurter
-}
-function clearSuccessBox(){
-   successAlert.style.display = "none";
-}
-function setInfoBox( str ){
-	if (!str) {
-		str = "Loading...";
-  } // default string unless i need a special loading string
-	infoAlert.innerHTML = str;
-	infoAlert.style.display = "block";
-	window.setTimeout( clearInfoBox, 5000 ); // self nuking frankfurter
-}
-function clearInfoBox(){
-  infoAlert.style.display = "none";
-}
-function setErrorBox( str ){
-	errorAlert.innerHTML = str;
-	errorAlert.style.display = "block";
   document.getElementById("notifications").focus();
 }
-function clearErrorBox(){
+function clearSuccessBox(){ // hide success notification on click or timer
+   successAlert.style.display = "none";
+}
+function setInfoBox( str ){ // setup and show info notification
+	if (!str) {
+		str = "Loading...";
+	} // default string unless i need a special loading string
+	infoAlert.innerHTML = str;
+	infoAlert.style.display = "block";
+	window.setTimeout(clearInfoBox, 5000); // self nuking frankfurter
+}
+function clearInfoBox(){ // hide info notification on click or timer
+  infoAlert.style.display = "none";
+}
+function setErrorBox( str ){ // setup and show error notification
+	errorAlert.innerHTML = str;
+	errorAlert.style.display = "block";
+	document.getElementById("notifications").focus();
+}
+function clearErrorBox(){ // hide error notification on click (no timer)
   errorAlert.style.display = "none";
 }
 //====================================== MAKE FOOD ==================================================
