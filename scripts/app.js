@@ -349,7 +349,7 @@ function shareRecepieClick(){ // process share recepie click
 	let category = document.getElementById("shareCategory");
 	let catImgURL = getCatImgURL(category[category.selectedIndex].value); // string
 
-	if ( !meal.value || meal.length < 4 ){
+	if ( meal.value.length < 4 ){
 		valid = false;
     errorStr += "<br> Meal Name must be longer than 4 characters.";    
 		meal.style.borderColor = "red";
@@ -369,7 +369,7 @@ function shareRecepieClick(){ // process share recepie click
 	} else {
 		ingredients.style.borderColor = "green";
 	}
-	if ( !preparation.value || preparation.value.length < 10 ){
+	if ( preparation.value.length < 10 ){
 		valid = false;
 		errorStr += "<br> Preparation Method must be longer than 10 characters.";    
     preparation.style.borderColor = "red";
@@ -390,7 +390,7 @@ function shareRecepieClick(){ // process share recepie click
     errorStr += "<br> Food Image Url must not be blank.";
     foodImgURL.style.borderColor = "red";
   }
-	if ( !description.value || description.length < 10 ){
+	if ( description.value.length < 10 ){
 		valid = false;
     errorStr += "<br> Description must be longer than 10 characters.";    
 		description.style.borderColor = "red";
@@ -493,7 +493,7 @@ function sendEditRecepie() { // process edit recepie click
 	let valid = true;
   // console.log( "Debug", ingredientArr, Array.isArray( ingredientArr ) );
   let errorStr = "";
-  if ( meal.length < 4 ){
+  if ( meal.value.length < 4 ){
     valid = false;
     errorStr += "<br> Meal Name must be longer than 4 characters.";
     meal.style.borderColor = "red";
@@ -507,7 +507,7 @@ function sendEditRecepie() { // process edit recepie click
 	} else {
 		ingredients.style.borderColor = "green";
 	}
-  if ( preparation.length < 10 ){
+  if ( preparation.value.length < 10 ){
     valid = false;
     errorStr += "<br> Preparation Method must be longer than 10 characters.";
     preparation.style.borderColor = "red";
@@ -521,7 +521,7 @@ function sendEditRecepie() { // process edit recepie click
   } else {
     foodImgURL.style.borderColor = "green";
   }
-  if ( description.length < 10 ){
+  if ( description.value.length < 10 ){
     valid = false;
     errorStr += "<br> Description must be longer than 10 characters.";
     description.style.borderColor = "red";
@@ -530,14 +530,13 @@ function sendEditRecepie() { // process edit recepie click
   }
   if ( category.selectedIndex == 0 ){
     valid = false;
-    errorStr +=
-			"<br> Category must be selected from the list (not left at default).";
+    errorStr += "<br> Category must be selected from the list (not left at default).";
     category.style.borderColor = "red";
   } else {
     category.style.borderColor = "green";
   }
   if ( !valid ){
-    setErrorBox(`Please fix as follows and try again; ${errorStr}`);
+    setErrorBox(`Please fix as follows and try again; <br> ${errorStr}`);
     return;
   }
 	// construct data item for recepie body
