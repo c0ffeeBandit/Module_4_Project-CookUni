@@ -342,25 +342,25 @@ function shareRecepieClick(){ // process share recepie click
   let errorStr = "";
 	let meal = document.getElementById("defaultRecepieShareMeal");
 	let ingredients = document.getElementById("defaultRecepieShareIngredients");
-  let ingredientArr = [];
 	let preparation = document.getElementById("defaultRecepieShareMethodOfPreparation");
 	let foodImgURL = document.getElementById("defaultRecepieShareFoodImageURL");
 	let description = document.getElementById("defaultRecepieShareDescription");
 	let category = document.getElementById("shareCategory");
 	let catImgURL = getCatImgURL(category[category.selectedIndex].value); // string
 
-	if ( meal.value.length < 4 ){
+	let ingredientArr = [];
+  if ( meal.value.length < 4 ){
 		valid = false;
     errorStr += "<br> Meal Name must be longer than 4 characters.";    
 		meal.style.borderColor = "red";
 	} else {
 		meal.style.borderColor = "green";
 	}
-  if (ingredients.value != "") {
-		ingredientArr = JSON.parse(ingredients.value);
+  if ( ingredients.value != "" || !ingredients.value.includes(",") ) {
+		ingredientArr = ingredients.value.split(", ");
 	} else {
 		valid = false;
-		errorStr += "<br> Ingredients cannot be blank.";
+		errorStr += "<br> Ingredients cannot be blank and must have one comma in it (two ingredients).";
 	}
 	if ( ingredientArr.length < 2 && Array.isArray(ingredientArr) ){
 		valid = false;
@@ -467,7 +467,12 @@ function recepieEdit( idStr ){ // render the edit recepie screen
     let template = Handlebars.compile(src);
     data.recepieID = idStr;
     // console.log( JSON.stringify(data.ingredients) );
-    data.ingredients = JSON.stringify(data.ingredients);
+    if( Array.isArray( data.ingredients ) ){
+      data.ingredients = data.ingredients.join(", ");
+    }else{
+      setErrorBox("Warning, Failed to make a proper ingredients entry, fix to enable saving.");
+      data.ingredients = JSON.stringify(data.ingredients);
+    }
     let context = data;
     let html = template(context);
     render(html);
@@ -482,7 +487,6 @@ function sendEditRecepie() { // process edit recepie click
 	if ( !validateUser() ){ return; }
 	let meal = document.getElementById("defaultRecepieEditMeal");
 	let ingredients = document.getElementById("defaultRecepieEditIngredients");
-  let ingredientArr = JSON.parse( ingredients.value );
 	let preparation = document.getElementById("defaultRecepieEditMethodOfPreparation");
 	let foodImgURL = document.getElementById("defaultRecepieEditFoodImageURL");
 	let description = document.getElementById("defaultRecepieEditDescription");
@@ -500,7 +504,15 @@ function sendEditRecepie() { // process edit recepie click
   } else {
     meal.style.borderColor = "green";
   }
-  if ( ingredientArr.length < 2 || !Array.isArray( ingredientArr ) ){
+  let ingredientArr = [];
+  if( ingredients.value.includes(",") ){
+    ingredientArr = ingredients.value.split(", ");
+  }else{
+    valid = false;
+    errorStr += "<br> Ingredients must include at least 2 ingredients that are comma separated.";
+    ingredients.style.borderColor = "red";
+  }
+  if ( valid && ingredientArr.length < 2 || !Array.isArray( ingredientArr ) ){
 		valid = false;
 		errorStr += "<br> Ingredients must be an array of at least 2 entries.";
 		ingredients.style.borderColor = "red";
@@ -723,7 +735,7 @@ function makeFood(){ // Dalek says: REPOPULATE! (with logged in user ID)
       "1 tablespoon white sugar",
       "1 1/4 cups milk",
       "1 egg",
-      "3 tablespoons butter, melted", // dick move, putting commas IN the data.json meant i could not split on ','
+      "3 tablespoons butter; melted"
     ],
     likesCounter: 3,
     meal: "Good Old Fashioned Pancakes",
@@ -749,11 +761,11 @@ function makeFood(){ // Dalek says: REPOPULATE! (with logged in user ID)
   let body2 = {
 		meal: "Classic Cheesecake",
 		ingredients: [
-			"Block cream cheese",
+			"4 Block cream cheese 8oz",
 			"Sugar",
 			"Sour cream",
 			"A little flavour",
-			"Eggs",
+			"Eggs"
 		],
 		creator: user,
 		prepMethod:
