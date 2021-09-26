@@ -180,44 +180,44 @@ function registerClick(){ // process the register click
   let errorStr = "";
 	if( firstName.value.length < 2 ){
 		valid = false;
-    errorStr += "\n  First Name must be longer than 2 characters.";
+    errorStr += "<br> First Name must be longer than 2 characters.";
 		firstName.style.borderColor = "red";
 	}else{
 		firstName.style.borderColor = "green";
 	}
 	if ( lastName.value.length < 2 ) {
 		valid = false;
-		errorStr += "\n  Last Name must be longer than 2 characters.";
+		errorStr += "<br> Last Name must be longer than 2 characters.";
 		lastName.style.borderColor = "red";
 	} else {
 		lastName.style.borderColor = "green";
 	}
 	if ( userName.value.length < 3 ) {
 		valid = false;
-		errorStr += "\n  User Name must be longer than 3 characters.";
+		errorStr += "<br> User Name must be longer than 3 characters.";
 		userName.style.borderColor = "red";
 	} else {
 		userName.style.borderColor = "green";
 	}
 	if ( firstPass.value.length < 6 ) {
 		valid = false;
-		errorStr += "\n  First Password must be longer than 6 characters.";
+		errorStr += "<br> First Password must be longer than 6 characters.";
 		firstPass.style.borderColor = "red";
 	} else {
 		firstPass.style.borderColor = "green";
 	}
 	if ( secondPass.value.length < 6 ) {
 		valid = false;
-		errorStr += "\n  Second Password must be longer than 6 characters.";
+		errorStr += "<br> Second Password must be longer than 6 characters.";
 		secondPass.style.borderColor = "red";
 	} else {
 		secondPass.style.borderColor = "green";
 	}
   if( !valid ){
-    // errorStr += " *** Debug: " + firstName.value + ` (len: ${firstName.value.length}) ` + lastName.value + ` (len: ${lastName.value.length}) ` + userName.value + ` (len: ${userName.value.length}) ` + firstPass.value + ` (len: ${firstPass.value.length}) ` + secondPass.value + ` (len: ${secondPass.value.length})`;
-    setErrorBox(`Please fix as follows and try again; ${errorStr}`);
-    return;
-  }
+		// errorStr += "<br> *** Debug: " + firstName.value + ` (len: ${firstName.value.length}) ` + lastName.value + ` (len: ${lastName.value.length}) ` + userName.value + ` (len: ${userName.value.length}) ` + firstPass.value + ` (len: ${firstPass.value.length}) ` + secondPass.value + ` (len: ${secondPass.value.length})`;
+		setErrorBox(`Please fix as follows and try again; <br>${errorStr}`);
+		return;
+	}
 	if ( firstPass.value != secondPass.value ) {
 		setErrorBox( passError );
 		return;
